@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Finance Tracker</title>
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="onboarding-container">
+        <!-- Screen 1: Welcome -->
+        <div class="onboarding-screen active" id="screen-1">
+            <div class="onboarding-content">
+                <div class="onboarding-illustration">
+                    <div class="illustration-bg">
+                        <i class="fas fa-chart-line illustration-icon"></i>
+                        <i class="fas fa-wallet illustration-icon-2"></i>
+                        <div class="floating-circle circle-1"></div>
+                        <div class="floating-circle circle-2"></div>
+                    </div>
+                </div>
+                <h1 class="onboarding-title">Take Control of Your Finances</h1>
+                <p class="onboarding-description">
+                    Track expenses, manage budgets, and achieve your financial goals with our easy-to-use finance
+                    tracker.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> Track income and expenses effortlessly</li>
+                    <li><i class="fas fa-check-circle"></i> Set and monitor monthly budgets</li>
+                    <li><i class="fas fa-check-circle"></i> Visualize spending with detailed analytics</li>
+                    <li><i class="fas fa-check-circle"></i> Organize transactions by categories</li>
+                </ul>
+            </div>
+            <div class="onboarding-footer">
+                <div class="dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="btn-primary" onclick="onboarding.nextScreen()">Get Started</button>
+                <button class="btn-skip" onclick="onboarding.nextScreen()">Skip</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Privacy -->
+        <div class="onboarding-screen" id="screen-2">
+            <div class="onboarding-content">
+                <div class="onboarding-illustration">
+                    <div class="illustration-bg">
+                        <i class="fas fa-shield-halved illustration-icon"></i>
+                        <i class="fas fa-lock illustration-icon-2"></i>
+                        <div class="floating-circle circle-1"></div>
+                        <div class="floating-circle circle-2"></div>
+                    </div>
+                </div>
+                <h1 class="onboarding-title">Your Privacy Matters</h1>
+                <p class="onboarding-description">
+                    We respect your privacy and put you in complete control of your data.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> <strong>100% Offline</strong> - All data stored locally on
+                        your device</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>No Data Collection</strong> - We don't collect or
+                        track any personal information</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>No Cloud Sync</strong> - Your financial data never
+                        leaves your device</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>PIN Protection</strong> - Optional security lock for
+                        added privacy</li>
+                </ul>
+            </div>
+            <div class="onboarding-footer">
+                <div class="dots">
+                    <span class="dot"></span>
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="btn-primary" onclick="onboarding.nextScreen()">Continue</button>
+                <button class="btn-skip" onclick="onboarding.nextScreen()">Skip</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Set Name -->
+        <div class="onboarding-screen" id="screen-3">
+            <div class="onboarding-content">
+                <div class="onboarding-illustration small">
+                    <div class="illustration-bg">
+                        <i class="fas fa-user illustration-icon"></i>
+                        <div class="floating-circle circle-1"></div>
+                    </div>
+                </div>
+                <h1 class="onboarding-title">What should we call you?</h1>
+                <p class="onboarding-description">
+                    Personalize your experience with your name
+                </p>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="user-name">Your Name</label>
+                        <input type="text" id="user-name" placeholder="Enter your name" maxlength="30">
+                    </div>
+                </div>
+            </div>
+            <div class="onboarding-footer">
+                <div class="dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="btn-primary" onclick="onboarding.nextScreen()">Continue</button>
+                <button class="btn-skip" onclick="onboarding.nextScreen()">Skip</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Set Budget & Currency -->
+        <div class="onboarding-screen" id="screen-4">
+            <div class="onboarding-content">
+                <div class="onboarding-illustration small">
+                    <div class="illustration-bg">
+                        <i class="fas fa-piggy-bank illustration-icon"></i>
+                        <div class="floating-circle circle-1"></div>
+                    </div>
+                </div>
+                <h1 class="onboarding-title">Set Your Monthly Budget</h1>
+                <p class="onboarding-description">
+                    Help us track your spending by setting a monthly budget and currency
+                </p>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="currency-select">Currency</label>
+                        <select id="currency-select">
+                            <option value="BDT">৳ Bangladeshi Taka (BDT)</option>
+                            <option value="USD">$ US Dollar (USD)</option>
+                            <option value="EUR">€ Euro (EUR)</option>
+                            <option value="INR">₹ Indian Rupee (INR)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="monthly-budget">Monthly Budget</label>
+                        <input type="number" id="monthly-budget" placeholder="Enter amount" min="0">
+                        <small>You can change these anytime in settings</small>
+                    </div>
+                </div>
+            </div>
+            <div class="onboarding-footer">
+                <div class="dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="btn-primary" onclick="onboarding.nextScreen()">Continue</button>
+                <button class="btn-skip" onclick="onboarding.nextScreen()">Skip</button>
+            </div>
+        </div>
+
+        <!-- Screen 5: Set PIN -->
+        <div class="onboarding-screen" id="screen-5">
+            <div class="onboarding-content">
+                <div class="onboarding-illustration small">
+                    <div class="illustration-bg">
+                        <i class="fas fa-lock illustration-icon"></i>
+                        <div class="floating-circle circle-1"></div>
+                    </div>
+                </div>
+                <h1 class="onboarding-title">Secure Your App</h1>
+                <p class="onboarding-description">
+                    Set a 4-digit PIN to protect your financial data (Optional)
+                </p>
+                <div class="form-container">
+                    <div class="pin-input-container">
+                        <input type="password" class="pin-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="password" class="pin-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="password" class="pin-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="password" class="pin-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                    </div>
+                    <small>You can enable/disable PIN anytime in settings</small>
+                </div>
+            </div>
+            <div class="onboarding-footer">
+                <div class="dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot active"></span>
+                </div>
+                <button class="btn-primary" onclick="onboarding.finish()">Set PIN & Continue</button>
+                <button class="btn-skip" onclick="onboarding.finish(true)">Skip PIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/onboarding.js"></script>
+</body>
+
+</html>

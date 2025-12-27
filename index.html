@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Finance Expense Tracker - Track your income and expenses offline">
+    <title>Finance Tracker</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <!-- Modern Header Card -->
+            <div class="home-header-wrapper">
+                <div class="home-header-bg">
+                    <div class="greeting-section">
+                        <p class="greeting-time" id="greeting-time">Good afternoon,</p>
+                        <h2 class="user-name" id="user-name">Your Name</h2>
+                    </div>
+                </div>
+
+                <div class="balance-card-white">
+                    <div class="balance-header">
+                        <span class="balance-label">Total Balance</span>
+                    </div>
+                    <h1 class="total-balance" id="total-balance">$0.00</h1>
+
+                    <div class="income-expense-boxes">
+                        <div class="income-box-teal">
+                            <i class="fas fa-arrow-down"></i>
+                            <div>
+                                <p class="label" data-lang="income">Income</p>
+                                <p class="value" id="header-income">$0</p>
+                            </div>
+                        </div>
+                        <div class="expense-box-teal">
+                            <i class="fas fa-arrow-up"></i>
+                            <div>
+                                <p class="label" data-lang="expense">Expenses</p>
+                                <p class="value" id="header-expense">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content">
+                <!-- Transactions History Section -->
+                <div class="transactions-history-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Transactions History</h3>
+                        <a href="#transactions" class="see-all-link">See all</a>
+                    </div>
+
+                    <div class="transactions-list" id="home-transactions-list">
+                        <!-- Transactions will be rendered here by JavaScript -->
+                        <p class="no-transactions">No transactions yet</p>
+                    </div>
+                </div>
+
+                <!-- Expense Cards Row -->
+                <div class="cards-row">
+                    <!-- Today's Expense Card -->
+                    <div class="card stats-card">
+                        <div class="card-header">
+                            <h3 data-lang="todayExpense">Today's Expense</h3>
+                            <i class="fas fa-calendar-day card-icon"></i>
+                        </div>
+                        <div class="card-body">
+                            <p class="amount" id="today-expense">৳0</p>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Summary Card -->
+                    <div class="card stats-card">
+                        <div class="card-header">
+                            <h3 data-lang="monthlyExpense">This Month</h3>
+                            <i class="fas fa-calendar-alt card-icon"></i>
+                        </div>
+                        <div class="card-body">
+                            <p class="amount" id="month-expense">৳0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivational Message -->
+                <div class="card message-card" id="motivational-card">
+                    <p id="motivational-message" class="message-text">Welcome to Finance Tracker!</p>
+                </div>
+
+                <!-- Savings Card -->
+                <div class="card savings-card">
+                    <div class="card-header">
+                        <h3 data-lang="savings">Savings</h3>
+                        <i class="fas fa-piggy-bank card-icon"></i>
+                    </div>
+                    <div class="card-body">
+                        <p class="amount" id="savings-amount">৳0</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="savings-progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Budget Card -->
+                <div class="card budget-card">
+                    <div class="card-header">
+                        <h3 data-lang="monthlyBudget">Monthly Budget</h3>
+                        <i class="fas fa-wallet card-icon"></i>
+                    </div>
+                    <div class="card-body">
+                        <div id="budget-content">
+                            <p class="budget-info" data-lang="noBudgetSet">No budget set</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Transactions Page -->
+        <div id="transactions-page" class="page">
+            <header class="page-header">
+                <h1 class="page-title" data-lang="transactions">Transactions</h1>
+            </header>
+
+            <div class="page-content">
+                <!-- Search and Filter -->
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Search transactions..."
+                            data-lang-placeholder="searchTransactions">
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-buttons">
+                            <button class="btn-filter active" data-filter="all" data-lang="all">All</button>
+                            <button class="btn-filter" data-filter="income" data-lang="income">Income</button>
+                            <button class="btn-filter" data-filter="expense" data-lang="expense">Expense</button>
+                        </div>
+                        <div class="sort-dropdown">
+                            <select id="sort-select" class="sort-select">
+                                <option value="newest" data-lang="newest">Newest</option>
+                                <option value="oldest" data-lang="oldest">Oldest</option>
+                                <option value="highest" data-lang="highest">Highest</option>
+                                <option value="lowest" data-lang="lowest">Lowest</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction List -->
+                <div id="transaction-list" class="transaction-list">
+                    <!-- Transactions will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Page -->
+        <div id="analysis-page" class="page">
+            <header class="page-header">
+                <h1 class="page-title" data-lang="analysis">Analysis</h1>
+            </header>
+
+            <div class="page-content">
+                <!-- Period Selector -->
+                <div class="period-selector">
+                    <button class="btn-period" data-period="week" data-lang="weekly">Weekly</button>
+                    <button class="btn-period active" data-period="month" data-lang="monthly">Monthly</button>
+                    <button class="btn-period" data-period="year" data-lang="yearly">Yearly</button>
+                </div>
+
+                <!-- Charts -->
+                <div class="card chart-card">
+                    <h3 class="card-title" data-lang="expenseTrend">Expense Trend</h3>
+                    <canvas id="expense-chart"></canvas>
+                </div>
+
+                <div class="card chart-card">
+                    <h3 class="card-title" data-lang="categoryBreakdown">Category Breakdown</h3>
+                    <canvas id="category-chart"></canvas>
+                </div>
+
+                <!-- Insights -->
+                <div class="card insights-card">
+                    <h3 class="card-title" data-lang="insights">Insights</h3>
+                    <div id="insights-list" class="insights-list">
+                        <!-- Insights will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label" data-lang="avgDaily">Daily Average</span>
+                        <span class="stat-value" id="avg-daily">৳0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-lang="highestCategory">Top Category</span>
+                        <span class="stat-value" id="highest-category">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-lang="monthlyBudget">Monthly Budget</span>
+                        <span class="stat-value" id="analysis-budget">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-lang="remaining">Remaining</span>
+                        <span class="stat-value" id="budget-remaining">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page">
+            <header class="page-header">
+                <h1 class="page-title" data-lang="settings">Settings</h1>
+            </header>
+
+            <div class="page-content">
+                <!-- Account Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Account</h3>
+                    <div class="settings-group">
+                        <div class="setting-item clickable" id="set-name-card">
+                            <div class="setting-info">
+                                <i class="fas fa-user setting-icon"></i>
+                                <span class="setting-label">Change Name</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="setting-item clickable" id="set-budget-btn">
+                            <div class="setting-info">
+                                <i class="fas fa-wallet setting-icon"></i>
+                                <span class="setting-label">Monthly Budget</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-lock setting-icon"></i>
+                                <span class="setting-label">App Lock</span>
+                            </div>
+                            <label class="toggle-switch" for="app-lock-toggle">
+                                <input type="checkbox" id="app-lock-toggle" aria-label="Enable or disable app lock">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Preferences</h3>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-language setting-icon"></i>
+                                <span class="setting-label">Language</span>
+                            </div>
+                            <select id="language-select" class="setting-select">
+                                <option value="en">English</option>
+                                <option value="bn">বাংলা</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-palette setting-icon"></i>
+                                <span class="setting-label">Theme</span>
+                            </div>
+                            <select id="theme-select" class="setting-select">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-dollar-sign setting-icon"></i>
+                                <span class="setting-label">Currency</span>
+                            </div>
+                            <select id="currency-select" class="setting-select">
+                                <option value="BDT">৳ BDT</option>
+                                <option value="USD">$ USD</option>
+                                <option value="EUR">€ EUR</option>
+                                <option value="INR">₹ INR</option>
+                            </select>
+                        </div>
+                        <div class="setting-item clickable" id="manage-categories-btn">
+                            <div class="setting-info">
+                                <i class="fas fa-tags setting-icon"></i>
+                                <span class="setting-label">Manage Categories</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Management Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Data Management</h3>
+                    <div class="settings-group">
+                        <div class="setting-item clickable" id="export-json-btn">
+                            <div class="setting-info">
+                                <i class="fas fa-download setting-icon"></i>
+                                <span class="setting-label">Backup</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="setting-item clickable" id="import-btn">
+                            <div class="setting-info">
+                                <i class="fas fa-upload setting-icon"></i>
+                                <span class="setting-label">Restore</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <input type="file" id="import-file" accept=".json" style="display: none;">
+                        <div class="setting-item clickable" id="reset-data-btn">
+                            <div class="setting-info">
+                                <i class="fas fa-trash-alt setting-icon" style="color: var(--danger-color);"></i>
+                                <span class="setting-label" style="color: var(--danger-color);">Reset All Data</span>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: var(--danger-color);"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">About</h3>
+                    <div class="settings-group">
+                        <a href="#" class="setting-item clickable" style="text-decoration: none; color: inherit;">
+                            <div class="setting-info">
+                                <i class="fas fa-users setting-icon"></i>
+                                <span class="setting-label">About Us</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-info-circle setting-icon"></i>
+                                <span class="setting-label">Version</span>
+                            </div>
+                            <span class="setting-value">1.0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="home">
+                <i class="fas fa-home"></i>
+                <span data-lang="home">Home</span>
+            </button>
+            <button class="nav-item" data-page="transactions">
+                <i class="fas fa-wallet"></i>
+                <span data-lang="transactions">Transactions</span>
+            </button>
+
+            <!-- Central Add Button -->
+            <button class="nav-item nav-add-btn" id="nav-add-transaction-btn">
+                <i class="fas fa-plus"></i>
+            </button>
+
+            <button class="nav-item" data-page="analysis">
+                <i class="fas fa-chart-pie"></i>
+                <span data-lang="analysis">Analysis</span>
+            </button>
+            <button class="nav-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span data-lang="settings">Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" data-lang="addTransaction">Add Transaction</h2>
+                <button class="btn-close" id="close-transaction-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="transaction-form" class="modal-body">
+                <div class="form-group">
+                    <label data-lang="type">Type</label>
+                    <div class="type-toggle">
+                        <button type="button" class="type-btn active" data-type="expense">
+                            <i class="fas fa-minus-circle"></i>
+                            <span data-lang="expense">Expense</span>
+                        </button>
+                        <button type="button" class="type-btn" data-type="income">
+                            <i class="fas fa-plus-circle"></i>
+                            <span data-lang="income">Income</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount" data-lang="amount">Amount</label>
+                    <input type="number" id="amount" required min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="category" data-lang="category">Category</label>
+                    <select id="category" required>
+                        <!-- Categories will be populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment-method" data-lang="paymentMethod">Payment Method</label>
+                    <select id="payment-method">
+                        <option value="cash" data-lang="cash">Cash</option>
+                        <option value="card" data-lang="card">Card</option>
+                        <option value="mobile" data-lang="mobileBanking">Mobile Banking</option>
+                        <option value="bank" data-lang="bank">Bank</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date" data-lang="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="note" data-lang="note">Note (Optional)</label>
+                    <textarea id="note" rows="3" placeholder="Add a note..."></textarea>
+                </div>
+
+                <input type="hidden" id="transaction-id">
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="delete-transaction-btn"
+                        style="display: none; margin-right: auto;">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="cancel-transaction-btn"
+                        data-lang="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-lang="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div id="budget-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-lang="setMonthlyBudget">Set Monthly Budget</h2>
+                <button class="btn-close" id="close-budget-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="budget-form" class="modal-body">
+                <div class="form-group">
+                    <label for="budget-amount" data-lang="budgetAmount">Budget Amount</label>
+                    <input type="number" id="budget-amount" required min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-budget-btn"
+                        data-lang="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-lang="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Categories Modal -->
+    <div id="categories-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-lang="manageCategories">Manage Categories</h2>
+                <button class="btn-close" id="close-categories-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body categories-modal-body">
+                <div id="categories-list">
+                    <!-- Categories will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: var(--spacing-lg);">
+                <button class="btn btn-primary" id="add-category-btn" style="width: 100%;">
+                    <i class="fas fa-plus"></i>
+                    <span data-lang="addCategory">Add Category</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div id="category-form-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="category-form-title">Add Category</h2>
+                <button class="btn-close" id="close-category-form-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="category-form" class="modal-body">
+                <div class="form-group">
+                    <label for="category-emoji">Emoji</label>
+                    <div class="emoji-picker-container">
+                        <input type="text" id="category-emoji" required maxlength="2" placeholder="🏷️"
+                            style="font-size: 32px; text-align: center; width: 80px;">
+                        <div class="emoji-suggestions">
+                            <button type="button" class="emoji-btn" data-emoji="🍔">🍔</button>
+                            <button type="button" class="emoji-btn" data-emoji="🚗">🚗</button>
+                            <button type="button" class="emoji-btn" data-emoji="💡">💡</button>
+                            <button type="button" class="emoji-btn" data-emoji="🛍️">🛍️</button>
+                            <button type="button" class="emoji-btn" data-emoji="🏥">🏥</button>
+                            <button type="button" class="emoji-btn" data-emoji="📚">📚</button>
+                            <button type="button" class="emoji-btn" data-emoji="🏠">🏠</button>
+                            <button type="button" class="emoji-btn" data-emoji="💰">💰</button>
+                            <button type="button" class="emoji-btn" data-emoji="📈">📈</button>
+                            <button type="button" class="emoji-btn" data-emoji="🎮">🎮</button>
+                            <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
+                            <button type="button" class="emoji-btn" data-emoji="🎬">🎬</button>
+                            <button type="button" class="emoji-btn" data-emoji="✈️">✈️</button>
+                            <button type="button" class="emoji-btn" data-emoji="🎁">🎁</button>
+                            <button type="button" class="emoji-btn" data-emoji="💊">💊</button>
+                            <button type="button" class="emoji-btn" data-emoji="🔧">🔧</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category-name">Category Name</label>
+                    <input type="text" id="category-name" required maxlength="30" placeholder="Enter category name">
+                </div>
+
+                <div class="form-group">
+                    <label for="category-type">Type</label>
+                    <select id="category-type" required>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+
+                <input type="hidden" id="category-id">
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="delete-category-btn"
+                        style="display: none; margin-right: auto;">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="cancel-category-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Set Name Modal -->
+    <div id="name-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Set Your Name</h2>
+                <button class="btn-close" id="close-name-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="name-form" class="modal-body">
+                <div class="form-group">
+                    <label for="name-input">Your Name</label>
+                    <input type="text" id="name-input" required maxlength="30" placeholder="Enter your name">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-name-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIN Setup/Change Modal -->
+    <div id="pin-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="pin-modal-title">Set PIN</h2>
+                <button class="btn-close" id="close-pin-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="pin-setup-container">
+                    <p class="pin-instruction" id="pin-instruction">Enter a 4-digit PIN</p>
+                    <div class="pin-display">
+                        <div class="pin-dot" id="pin-dot-1"></div>
+                        <div class="pin-dot" id="pin-dot-2"></div>
+                        <div class="pin-dot" id="pin-dot-3"></div>
+                        <div class="pin-dot" id="pin-dot-4"></div>
+                    </div>
+                    <div class="pin-keypad">
+                        <button class="pin-key" data-key="1">1</button>
+                        <button class="pin-key" data-key="2">2</button>
+                        <button class="pin-key" data-key="3">3</button>
+                        <button class="pin-key" data-key="4">4</button>
+                        <button class="pin-key" data-key="5">5</button>
+                        <button class="pin-key" data-key="6">6</button>
+                        <button class="pin-key" data-key="7">7</button>
+                        <button class="pin-key" data-key="8">8</button>
+                        <button class="pin-key" data-key="9">9</button>
+                        <button class="pin-key pin-key-empty"></button>
+                        <button class="pin-key" data-key="0">0</button>
+                        <button class="pin-key pin-key-delete" data-key="delete">
+                            <i class="fas fa-backspace"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lock Screen -->
+    <div id="lock-screen" class="lock-screen hidden">
+        <div class="lock-screen-content">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="lock-title">App Locked</h2>
+            <p class="lock-subtitle">Enter your PIN to unlock</p>
+            <div class="pin-display">
+                <div class="pin-dot" id="lock-pin-dot-1"></div>
+                <div class="pin-dot" id="lock-pin-dot-2"></div>
+                <div class="pin-dot" id="lock-pin-dot-3"></div>
+                <div class="pin-dot" id="lock-pin-dot-4"></div>
+            </div>
+            <p class="lock-error hidden" id="lock-error">Incorrect PIN. Try again.</p>
+            <div class="pin-keypad">
+                <button class="pin-key" data-key="1">1</button>
+                <button class="pin-key" data-key="2">2</button>
+                <button class="pin-key" data-key="3">3</button>
+                <button class="pin-key" data-key="4">4</button>
+                <button class="pin-key" data-key="5">5</button>
+                <button class="pin-key" data-key="6">6</button>
+                <button class="pin-key" data-key="7">7</button>
+                <button class="pin-key" data-key="8">8</button>
+                <button class="pin-key" data-key="9">9</button>
+                <button class="pin-key pin-key-empty"></button>
+                <button class="pin-key" data-key="0">0</button>
+                <button class="pin-key pin-key-delete" data-key="delete">
+                    <i class="fas fa-backspace"></i>
+                </button>
+            </div>
+            <button class="forgot-pin-btn" id="forgot-pin-btn">
+                <i class="fas fa-question-circle"></i>
+                Forgot PIN?
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="confirm-title">Confirm Action</h2>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message"
+                    style="color: var(--text-primary); font-size: var(--font-size-md); line-height: 1.6;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Onboarding Check -->
+    <script>
+        // Check if onboarding is completed before loading the app
+        (async function checkOnboarding() {
+            // First check localStorage for quick check
+            const localStorageCheck = localStorage.getItem('onboardingCompleted');
+            if (localStorageCheck === 'true') {
+                // Onboarding completed, continue loading app
+                return;
+            }
+
+            // If not in localStorage, check database
+            const dbName = 'FinanceTrackerDB';
+            const request = indexedDB.open(dbName, 1);
+
+            request.onsuccess = async function (event) {
+                const db = event.target.result;
+
+                // Check if settings store exists
+                if (!db.objectStoreNames.contains('settings')) {
+                    // Database not initialized, show onboarding
+                    window.location.href = 'onboarding.html';
+                    return;
+                }
+
+                const transaction = db.transaction(['settings'], 'readonly');
+                const store = transaction.objectStore('settings');
+                const getRequest = store.get('onboardingCompleted');
+
+                getRequest.onsuccess = function () {
+                    if (!getRequest.result || !getRequest.result.value) {
+                        // Redirect to onboarding
+                        window.location.href = 'onboarding.html';
+                    } else {
+                        // Also set in localStorage for faster future checks
+                        localStorage.setItem('onboardingCompleted', 'true');
+                    }
+                };
+
+                getRequest.onerror = function () {
+                    // If error or no data, show onboarding
+                    window.location.href = 'onboarding.html';
+                };
+            };
+
+            request.onerror = function () {
+                // If database doesn't exist, show onboarding
+                window.location.href = 'onboarding.html';
+            };
+        })();
+    </script>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/lang.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/categoryform.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/transactions.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/applock.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

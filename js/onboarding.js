@@ -1,0 +1,239 @@
+// ===================================
+// Onboarding Manager
+// ===================================
+
+class OnboardingManager {
+    constructor() {
+        this.currentScreen = 1;
+        this.totalScreens = 5; // Changed from 6 to 5
+        this.data = {
+            userName: '',
+            monthlyBudget: null,
+            currency: 'BDT',
+            theme: 'light',
+            pin: ''
+        };
+    }
+
+    init() {
+        this.setupPINInputs();
+        this.loadSavedData();
+
+        // Check if onboarding is already completed
+        this.checkOnboardingStatus();
+    }
+
+    async checkOnboardingStatus() {
+        const completed = await db.getSetting('onboardingCompleted');
+        if (completed) {
+            // Redirect to main app
+            window.location.href = 'index.html';
+        }
+    }
+
+    setupPINInputs() {
+        const pinInputs = document.querySelectorAll('.pin-digit');
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+
+                // Only allow numbers
+                if (!/^\d*$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+
+                // Move to next input
+                if (value && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                // Move to previous input on backspace
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                const digits = pastedData.replace(/\D/g, '').split('').slice(0, 4);
+
+                digits.forEach((digit, i) => {
+                    if (pinInputs[i]) {
+                        pinInputs[i].value = digit;
+                    }
+                });
+
+                if (digits.length > 0) {
+                    const lastIndex = Math.min(digits.length - 1, 3);
+                    pinInputs[lastIndex].focus();
+                }
+            });
+        });
+    }
+
+    loadSavedData() {
+        // Load any previously entered data (in case user refreshes)
+        const savedData = sessionStorage.getItem('onboardingData');
+        if (savedData) {
+            this.data = JSON.parse(savedData);
+            this.populateFields();
+        }
+    }
+
+    populateFields() {
+        // Populate fields with saved data
+        const nameInput = document.getElementById('user-name');
+        const budgetInput = document.getElementById('monthly-budget');
+        const currencySelect = document.getElementById('currency-select');
+
+        if (nameInput && this.data.userName) {
+            nameInput.value = this.data.userName;
+        }
+        if (budgetInput && this.data.monthlyBudget) {
+            budgetInput.value = this.data.monthlyBudget;
+        }
+        if (currencySelect && this.data.currency) {
+            currencySelect.value = this.data.currency;
+        }
+    }
+
+    saveCurrentScreenData() {
+        switch (this.currentScreen) {
+            case 3: // Name screen
+                const nameInput = document.getElementById('user-name');
+                if (nameInput) {
+                    this.data.userName = nameInput.value.trim();
+                }
+                break;
+
+            case 4: // Budget & Currency screen (combined)
+                const budgetInput = document.getElementById('monthly-budget');
+                if (budgetInput) {
+                    const budget = parseFloat(budgetInput.value);
+                    this.data.monthlyBudget = budget > 0 ? budget : null;
+                }
+
+                const currencySelect = document.getElementById('currency-select');
+                if (currencySelect) {
+                    this.data.currency = currencySelect.value;
+                }
+                break;
+
+            case 5: // PIN screen
+                const pinInputs = document.querySelectorAll('.pin-digit');
+                const pin = Array.from(pinInputs).map(input => input.value).join('');
+                if (pin.length === 4) {
+                    this.data.pin = pin;
+                }
+                break;
+        }
+
+        // Save to session storage
+        sessionStorage.setItem('onboardingData', JSON.stringify(this.data));
+    }
+
+    nextScreen() {
+        this.saveCurrentScreenData();
+
+        if (this.currentScreen < this.totalScreens) {
+            // Hide current screen
+            document.getElementById(`screen-${this.currentScreen}`).classList.remove('active');
+
+            // Show next screen
+            this.currentScreen++;
+            document.getElementById(`screen-${this.currentScreen}`).classList.add('active');
+        }
+    }
+
+    selectTheme(theme) {
+        this.data.theme = theme;
+
+        // Update UI
+        document.querySelectorAll('.theme-option').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const themeBtn = document.querySelector(`[data-theme="${theme}"]`);
+        if (themeBtn) {
+            themeBtn.classList.add('active');
+        }
+
+        // Apply theme preview
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+    }
+
+    async finish(skipPIN = false) {
+        // Save current screen data if not skipping
+        if (!skipPIN) {
+            this.saveCurrentScreenData();
+        }
+
+        try {
+            // Initialize database first
+            await db.init();
+
+            // Save all settings to database
+            if (this.data.userName) {
+                await db.setSetting('userName', this.data.userName);
+            }
+
+            if (this.data.monthlyBudget) {
+                await db.setSetting('monthlyBudget', this.data.monthlyBudget);
+            }
+
+            await db.setSetting('currency', this.data.currency);
+            await db.setSetting('theme', this.data.theme);
+
+            // Save PIN if provided and not skipping
+            if (!skipPIN && this.data.pin && this.data.pin.length === 4) {
+                await db.setSetting('appLockEnabled', true);
+                await db.setSetting('appLockPIN', this.data.pin);
+            } else {
+                // Ensure PIN is disabled if skipped
+                await db.setSetting('appLockEnabled', false);
+            }
+
+            // Mark onboarding as completed - THIS IS CRITICAL
+            await db.setSetting('onboardingCompleted', true);
+
+            // Also set in localStorage as a backup
+            localStorage.setItem('onboardingCompleted', 'true');
+
+            // Clear session storage
+            sessionStorage.removeItem('onboardingData');
+
+            // Apply theme
+            if (this.data.theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+
+            // Wait a bit to ensure database write completes
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Redirect to main app
+            window.location.href = 'index.html';
+
+        } catch (error) {
+            console.error('Error saving onboarding data:', error);
+            alert('Error saving settings. Please try again.');
+        }
+    }
+}
+
+// Create global instance
+const onboarding = new OnboardingManager();
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    onboarding.init();
+});
