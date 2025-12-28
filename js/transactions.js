@@ -62,8 +62,13 @@ class TransactionsManager {
             });
         });
 
+
         // Modal controls - only nav button now
         document.getElementById('nav-add-transaction-btn').addEventListener('click', () => {
+            if (demoModeManager.isActive()) {
+                demoModeManager.showDemoModeWarning();
+                return;
+            }
             this.openModal();
         });
 
@@ -87,6 +92,10 @@ class TransactionsManager {
             const editBtn = e.target.closest('.btn-edit');
 
             if (editBtn) {
+                if (demoModeManager.isActive()) {
+                    demoModeManager.showDemoModeWarning();
+                    return;
+                }
                 const id = parseInt(editBtn.dataset.id);
                 await this.editTransaction(id);
             }

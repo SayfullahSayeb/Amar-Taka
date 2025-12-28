@@ -31,6 +31,10 @@ class SettingsManager {
         if (headerName) {
             headerName.textContent = userName;
         }
+
+        // Load demo mode state
+        const demoMode = localStorage.getItem('demoMode') === 'true';
+        document.getElementById('demo-mode-toggle').checked = demoMode;
     }
 
     setupEventListeners() {
@@ -153,6 +157,15 @@ class SettingsManager {
         document.getElementById('clear-cache-btn').addEventListener('click', () => {
             this.clearCacheAndUpdate();
         });
+
+        // Demo Mode toggle
+        document.getElementById('demo-mode-toggle').addEventListener('change', async (e) => {
+            if (e.target.checked) {
+                await demoModeManager.enableDemoMode();
+            } else {
+                await demoModeManager.disableDemoMode();
+            }
+        });
     }
 
     applyTheme(theme) {
@@ -197,6 +210,14 @@ class SettingsManager {
         const confirmed = await Utils.confirm(confirmMessage, 'Reset All Data', 'Reset');
         if (confirmed) {
             try {
+                // Disable demo mode if active
+                if (demoModeManager.isActive()) {
+                    demoModeManager.isDemoMode = false;
+                    localStorage.removeItem('demoMode');
+                    localStorage.removeItem('originalData');
+                    console.log('Demo mode disabled');
+                }
+
                 // Clear transactions
                 await db.clearStore('transactions');
                 console.log('Transactions cleared');
@@ -233,7 +254,7 @@ class SettingsManager {
 
     async clearCacheAndUpdate() {
         const confirmed = await Utils.confirm(
-            'This will clear the app cache and reload to show the latest updates. Continue?',
+            'This will clear all app cache and reload to show the latest updates. Your data (transactions, settings) will be preserved. Continue?',
             'Clear Cache & Update',
             'Clear & Reload'
         );
@@ -242,43 +263,90 @@ class SettingsManager {
             try {
                 Utils.showToast('Clearing cache...');
 
-                // Clear all caches using Cache API
-                if ('caches' in window) {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(
-                        cacheNames.map(cacheName => caches.delete(cacheName))
-                    );
-                    console.log('Cache API cleared');
+                // Check if running on a secure context (https:// or localhost)
+                const isSecureContext = window.isSecureContext || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+                const isFileProtocol = window.location.protocol === 'file:';
+
+                // 1. Clear Cache API (only works in secure contexts)
+                if ('caches' in window && isSecureContext) {
+                    try {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(
+                            cacheNames.map(cacheName => caches.delete(cacheName))
+                        );
+                        console.log('✓ Cache API cleared');
+                    } catch (error) {
+                        console.log('Cache API not available:', error.message);
+                    }
                 }
 
-                // Unregister service workers if any
-                if ('serviceWorker' in navigator) {
-                    const registrations = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(
-                        registrations.map(registration => registration.unregister())
-                    );
-                    console.log('Service workers unregistered');
+                // 2. Unregister service workers (only works in secure contexts, not on file://)
+                if ('serviceWorker' in navigator && !isFileProtocol && isSecureContext) {
+                    try {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(
+                            registrations.map(registration => registration.unregister())
+                        );
+                        console.log('✓ Service workers unregistered');
+                    } catch (error) {
+                        console.log('Service Worker not available:', error.message);
+                    }
                 }
 
-                // Clear any app-specific cache keys from localStorage
-                const cacheKeys = Object.keys(localStorage).filter(key =>
-                    key.includes('cache') || key.includes('version')
-                );
-                cacheKeys.forEach(key => localStorage.removeItem(key));
+                // 3. Clear sessionStorage (works everywhere)
+                try {
+                    sessionStorage.clear();
+                    console.log('✓ Session storage cleared');
+                } catch (error) {
+                    console.log('Session storage error:', error.message);
+                }
+
+                // 4. Clear specific localStorage cache keys (preserve user data)
+                try {
+                    const preserveKeys = ['onboardingCompleted', 'privacyMode'];
+                    const keysToRemove = Object.keys(localStorage).filter(key =>
+                        !preserveKeys.includes(key) &&
+                        (key.includes('cache') || key.includes('version') || key.includes('temp'))
+                    );
+                    keysToRemove.forEach(key => localStorage.removeItem(key));
+                    console.log('✓ localStorage cache cleared');
+                } catch (error) {
+                    console.log('localStorage error:', error.message);
+                }
+
+                // 5. Clear browser memory cache (if supported)
+                if (window.performance && window.performance.clearResourceTimings) {
+                    try {
+                        window.performance.clearResourceTimings();
+                        console.log('✓ Performance cache cleared');
+                    } catch (error) {
+                        console.log('Performance cache error:', error.message);
+                    }
+                }
 
                 Utils.showToast('Cache cleared! Reloading...');
 
-                // Force reload from server (bypassing cache)
+                // 6. Force hard reload with cache-busting
                 setTimeout(() => {
-                    window.location.reload(true);
-                }, 500);
+                    // Modern way to force hard reload: add timestamp to URL
+                    const url = new URL(window.location.href);
+                    // Remove any existing timestamp parameter
+                    url.searchParams.delete('_t');
+                    // Add new timestamp
+                    url.searchParams.set('_t', Date.now());
+                    window.location.href = url.toString();
+                }, 800);
+
             } catch (error) {
                 console.error('Clear cache error:', error);
-                Utils.showToast('Error clearing cache: ' + error.message);
+                Utils.showToast('Cache cleared partially. Reloading...');
 
-                // Fallback: just do a hard reload
+                // Fallback: force reload with cache-busting
                 setTimeout(() => {
-                    window.location.reload(true);
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('_t');
+                    url.searchParams.set('_t', Date.now());
+                    window.location.href = url.toString();
                 }, 1000);
             }
         }

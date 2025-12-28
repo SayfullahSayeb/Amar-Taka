@@ -18,6 +18,9 @@ class App {
             // Initialize categories
             await categoriesManager.init();
 
+            // Initialize demo mode
+            await demoModeManager.init();
+
             // Initialize all managers
             await homeManager.init();
             await transactionsManager.init();
