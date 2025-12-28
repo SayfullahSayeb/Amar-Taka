@@ -185,6 +185,16 @@ class Database {
         }
     }
 
+    // Delete setting
+    async deleteSetting(key) {
+        try {
+            return await this.delete('settings', key);
+        } catch (error) {
+            console.error('Error deleting setting:', error);
+            return null;
+        }
+    }
+
     // Clear all data from a store
     async clearStore(storeName) {
         return new Promise((resolve, reject) => {

@@ -234,13 +234,24 @@ class DemoModeManager {
                 // Restore settings
                 if (this.originalData.settings.monthlyBudget) {
                     await db.setSetting('monthlyBudget', this.originalData.settings.monthlyBudget);
+                } else {
+                    // If there was no original budget, remove the demo budget
+                    await db.deleteSetting('monthlyBudget');
                 }
+
                 if (this.originalData.settings.userName) {
                     await db.setSetting('userName', this.originalData.settings.userName);
+                } else {
+                    // If there was no original name, remove the demo name
+                    await db.deleteSetting('userName');
                 }
 
                 // Clear stored original data
                 localStorage.removeItem('originalData');
+            } else {
+                // No original data (first-time user), so clear demo settings
+                await db.deleteSetting('monthlyBudget');
+                await db.deleteSetting('userName');
             }
 
             // Mark demo mode as inactive
