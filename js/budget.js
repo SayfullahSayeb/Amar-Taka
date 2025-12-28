@@ -75,6 +75,11 @@ class BudgetManager {
             if (document.getElementById('settings-page').classList.contains('active')) {
                 await settingsManager.loadBudget();
             }
+
+            // Update home page budget display
+            if (document.getElementById('home-page').classList.contains('active')) {
+                await homeManager.updateBudget();
+            }
         } catch (error) {
             console.error('Error setting budget:', error);
             Utils.showToast('Error setting budget');

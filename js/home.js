@@ -362,7 +362,7 @@ class HomeManager {
                         <i class="fas fa-wallet"></i>
                     </div>
                     <p style="color: var(--text-secondary); margin: 0;">${lang.translate('noBudgetSet') || 'Set a monthly budget to track spending.'}</p>
-                    <button class="btn-set-budget" onclick="app.openModal('budget-modal')">
+                    <button class="btn-set-budget" onclick="budgetManager.openBudgetModal()">
                         ${lang.translate('setMonthlyBudget') || 'Set Budget'}
                     </button>
                 </div>
