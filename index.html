@@ -7,8 +7,11 @@
     <meta name="description" content="Professional Finance Expense Tracker - Track your income and expenses offline">
     <title>Amar Taka</title>
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Version Configuration (Load First) -->
+    <script src="js/version.js"></script>
+
+    <!-- Styles with Cache Busting -->
+    <script>document.write('<link rel="stylesheet" href="css/styles.css?v=' + APP_VERSION + '">');</script>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -350,13 +353,6 @@
                 <div class="settings-section">
                     <h3 class="settings-section-title">About</h3>
                     <div class="settings-group">
-                        <div class="setting-item clickable" id="clear-cache-btn">
-                            <div class="setting-info">
-                                <i class="fas fa-sync-alt setting-icon"></i>
-                                <span class="setting-label">Clear Cache & Update</span>
-                            </div>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
                         <a href="https://github.com/SayfullahSayeb/Amar-Taka" class="setting-item clickable" style="text-decoration: none; color: inherit;" target="_blank" rel="noopener noreferrer">
                             <div class="setting-info">
                                 <i class="fas fa-users setting-icon"></i>
@@ -375,7 +371,7 @@
                 </div>
 
                 <p
-                    style="text-align: center; color: var(--text-tertiary); font-size: 12px; margin-top: 20px; margin-bottom: 80px;">
+                    style="text-align: center; color: var(--text-tertiary); font-size: 16px; margin-top: 20px; margin-bottom: 50px;">
                     Developed with <span style="color: #e25555;">♡</span> by Sayeb
                 </p>
             </div>
@@ -765,21 +761,30 @@
         })();
     </script>
 
-    <!-- Scripts -->
-    <script src="js/db.js"></script>
-    <script src="js/lang.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/categories.js"></script>
-    <script src="js/categoryform.js"></script>
-    <script src="js/home.js"></script>
-    <script src="js/transactions.js"></script>
-    <script src="js/analysis.js"></script>
-    <script src="js/budget.js"></script>
-    <script src="js/export.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/applock.js"></script>
-    <script src="js/demomode.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Scripts with Cache Busting -->
+    <script>
+        // Dynamically load all JS files with version parameter
+        const scripts = [
+            'js/db.js',
+            'js/lang.js',
+            'js/utils.js',
+            'js/categories.js',
+            'js/categoryform.js',
+            'js/home.js',
+            'js/transactions.js',
+            'js/analysis.js',
+            'js/budget.js',
+            'js/export.js',
+            'js/settings.js',
+            'js/applock.js',
+            'js/demomode.js',
+            'js/app.js'
+        ];
+        
+        scripts.forEach(src => {
+            document.write('<script src="' + src + '?v=' + APP_VERSION + '"><\/script>');
+        });
+    </script>
 </body>
 
 </html>

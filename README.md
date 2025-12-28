@@ -66,7 +66,6 @@ A professional, offline-first finance tracking application. Built for students, 
 - Personalized user name
 - Category management
 - App lock (PIN protection)
-- Cache management
 
 
 ## Design Philosophy
