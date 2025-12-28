@@ -51,10 +51,13 @@ class App {
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const page = e.currentTarget.dataset.page;
 
                 // Only navigate if the item has a data-page attribute
                 if (page) {
+                    // Close all modals before navigating
+                    this.closeAllModals();
                     this.navigateTo(page);
                 }
             });
@@ -66,9 +69,7 @@ class App {
             const page = hash || 'home';
 
             // Close all modals when navigating
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('active');
-            });
+            this.closeAllModals();
 
             this.navigateTo(page, false); // Don't update hash again
         });
@@ -115,6 +116,27 @@ class App {
             case 'settings':
                 // Settings are already loaded
                 break;
+        }
+    }
+
+    closeAllModals() {
+        // Close all modals
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.remove('active');
+        });
+
+        // Remove any modal backdrops that might be lingering
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+        });
+
+        // Reset body overflow (in case a modal locked scrolling)
+        document.body.style.overflow = '';
+
+        // Clear any active confirm/alert dialogs
+        const confirmModal = document.getElementById('confirm-modal');
+        if (confirmModal) {
+            confirmModal.classList.remove('active');
         }
     }
 }
