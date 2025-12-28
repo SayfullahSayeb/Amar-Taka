@@ -379,6 +379,7 @@ body {
 
 .balance-label {
     font-size: 14px;
+    font-weight: var(--font-weight-medium);
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -416,42 +417,47 @@ body {
 .income-expense-boxes {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
+    gap: 8px;
 }
 
 .income-box-teal,
 .expense-box-teal {
     background: linear-gradient(135deg, #29756F, #3d9188);
-    padding: var(--spacing-md);
+    padding: 12px 10px;
     border-radius: 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .income-box-teal i,
 .expense-box-teal i {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 12px;
     background: rgba(255, 255, 255, 0.2);
     color: white;
+    flex-shrink: 0;
 }
 
 .income-box-teal .label,
 .expense-box-teal .label {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0 0 4px 0;
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 1);
+    margin: 0 0 3px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: var(--font-weight-medium);
 }
 
 .income-box-teal .value,
 .expense-box-teal .value {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: var(--font-weight-bold);
     color: white;
     margin: 0;
@@ -776,7 +782,8 @@ body {
 }
 
 .expense-stat-main .stat-value {
-    font-size: 32px; /* Bigger visualization */
+    font-size: 32px;
+    /* Bigger visualization */
     color: var(--text-primary);
 }
 
