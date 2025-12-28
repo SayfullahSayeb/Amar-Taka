@@ -148,6 +148,11 @@ class SettingsManager {
         document.getElementById('reset-data-btn').addEventListener('click', () => {
             this.resetData();
         });
+
+        // Clear cache and update
+        document.getElementById('clear-cache-btn').addEventListener('click', () => {
+            this.clearCacheAndUpdate();
+        });
     }
 
     applyTheme(theme) {
@@ -222,6 +227,59 @@ class SettingsManager {
                 console.error('Reset error:', error);
                 Utils.showToast('Error resetting data: ' + error.message);
                 alert('Failed to reset data. Please try again or clear your browser data manually.');
+            }
+        }
+    }
+
+    async clearCacheAndUpdate() {
+        const confirmed = await Utils.confirm(
+            'This will clear the app cache and reload to show the latest updates. Continue?',
+            'Clear Cache & Update',
+            'Clear & Reload'
+        );
+
+        if (confirmed) {
+            try {
+                Utils.showToast('Clearing cache...');
+
+                // Clear all caches using Cache API
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(
+                        cacheNames.map(cacheName => caches.delete(cacheName))
+                    );
+                    console.log('Cache API cleared');
+                }
+
+                // Unregister service workers if any
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(
+                        registrations.map(registration => registration.unregister())
+                    );
+                    console.log('Service workers unregistered');
+                }
+
+                // Clear any app-specific cache keys from localStorage
+                const cacheKeys = Object.keys(localStorage).filter(key =>
+                    key.includes('cache') || key.includes('version')
+                );
+                cacheKeys.forEach(key => localStorage.removeItem(key));
+
+                Utils.showToast('Cache cleared! Reloading...');
+
+                // Force reload from server (bypassing cache)
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 500);
+            } catch (error) {
+                console.error('Clear cache error:', error);
+                Utils.showToast('Error clearing cache: ' + error.message);
+
+                // Fallback: just do a hard reload
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
             }
         }
     }
