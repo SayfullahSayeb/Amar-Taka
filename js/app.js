@@ -9,7 +9,13 @@ class App {
 
     async init() {
         try {
-            // Initialize database
+            // Initialize profile manager first (before database)
+            await profileManager.init();
+
+            // Migrate existing data to personal profile if needed
+            await profileManager.migrateExistingData();
+
+            // Initialize database with profile-specific name
             await db.init();
 
             // Initialize language system
@@ -28,6 +34,9 @@ class App {
             await budgetManager.init();
             await exportManager.init();
             await settingsManager.init();
+
+            // Setup profile manager event listeners
+            profileManager.setupEventListeners();
 
             // Setup navigation
             this.setupNavigation();

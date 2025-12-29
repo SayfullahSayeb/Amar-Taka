@@ -34,9 +34,15 @@
                             <p class="greeting-time" id="greeting-time">Good afternoon,</p>
                             <h2 class="user-name" id="user-name">Your Name</h2>
                         </div>
-                        <a href="#settings" class="header-menu-icon">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </a>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="profile-switch-icon-btn" id="profile-switch-icon" style="display: none;"
+                                title="Switch Profile">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            <a href="#settings" class="header-menu-icon">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -270,6 +276,27 @@
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-briefcase setting-icon"></i>
+                                <span class="setting-label">Secondary Profile</span>
+                            </div>
+                            <label class="toggle-switch" for="secondary-profile-toggle">
+                                <input type="checkbox" id="secondary-profile-toggle"
+                                    aria-label="Enable or disable secondary profile">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item clickable" id="switch-profile-btn" style="display: none;">
+                            <div class="setting-info">
+                                <i class="fas fa-exchange-alt setting-icon"></i>
+                                <span class="setting-label">Switch Profile</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="setting-value" id="current-profile-name">Personal</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -353,7 +380,8 @@
                 <div class="settings-section">
                     <h3 class="settings-section-title">About</h3>
                     <div class="settings-group">
-                        <a href="https://github.com/SayfullahSayeb/Amar-Taka" class="setting-item clickable" style="text-decoration: none; color: inherit;" target="_blank" rel="noopener noreferrer">
+                        <a href="https://github.com/SayfullahSayeb/Amar-Taka" class="setting-item clickable"
+                            style="text-decoration: none; color: inherit;" target="_blank" rel="noopener noreferrer">
                             <div class="setting-info">
                                 <i class="fas fa-users setting-icon"></i>
                                 <span class="setting-label">About Us</span>
@@ -365,7 +393,7 @@
                                 <i class="fas fa-info-circle setting-icon"></i>
                                 <span class="setting-label">Version</span>
                             </div>
-                            <span class="setting-value">1.0.0</span>
+                            <span class="setting-value" id="app-version">1.0.0</span>
                         </div>
                     </div>
                 </div>
@@ -688,6 +716,89 @@
         </div>
     </div>
 
+    <!-- Secondary Profile Setup Modal -->
+    <div id="secondary-profile-setup-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Setup Secondary Profile</h2>
+                <button class="btn-close" id="close-secondary-setup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="secondary-profile-name">Profile Name</label>
+                    <input type="text" id="secondary-profile-name" placeholder="Enter profile name" maxlength="30"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="secondary-currency-select">Currency</label>
+                    <select id="secondary-currency-select">
+                        <option value="BDT">৳ Bangladeshi Taka (BDT)</option>
+                        <option value="USD">$ US Dollar (USD)</option>
+                        <option value="EUR">€ Euro (EUR)</option>
+                        <option value="INR">₹ Indian Rupee (INR)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="secondary-monthly-budget">Monthly Budget (Optional)</label>
+                    <input type="number" id="secondary-monthly-budget" placeholder="Enter amount" min="0">
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="display: flex; gap: 12px; justify-content: flex-end; padding: var(--spacing-lg); border-top: 1px solid var(--border-color);">
+                <button type="button" class="btn btn-secondary" id="cancel-secondary-setup">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-secondary-setup">Create Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disable Secondary Profile Modal -->
+    <div id="disable-secondary-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Disable Secondary Profile</h2>
+                <button class="btn-close" id="close-disable-secondary">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                    ⚠️ <strong>Warning:</strong> You are about to disable your secondary profile. Choose an option:
+                </p>
+
+                <div class="disable-option-card" id="disable-keep-data">
+                    <div class="disable-option-icon">
+                        <i class="fas fa-pause-circle"></i>
+                    </div>
+                    <div class="disable-option-content">
+                        <h3>Keep Data & Deactivate</h3>
+                        <p>Temporarily disable the profile. All data will be preserved and you can re-enable it anytime.
+                        </p>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+
+                <div class="disable-option-card" id="disable-erase-data">
+                    <div class="disable-option-icon" style="color: var(--danger-color);">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div class="disable-option-content">
+                        <h3 style="color: var(--danger-color);">Erase All Data & Disable</h3>
+                        <p>Permanently delete all secondary profile data and disable it. This cannot be undone.</p>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="display: flex; gap: 12px; justify-content: flex-end; padding: var(--spacing-lg); border-top: 1px solid var(--border-color);">
+                <button type="button" class="btn btn-secondary" id="cancel-disable-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Confirmation Modal -->
     <div id="confirm-modal" class="modal">
@@ -778,9 +889,10 @@
             'js/settings.js',
             'js/applock.js',
             'js/demomode.js',
+            'js/profiles.js',
             'js/app.js'
         ];
-        
+
         scripts.forEach(src => {
             document.write('<script src="' + src + '?v=' + APP_VERSION + '"><\/script>');
         });

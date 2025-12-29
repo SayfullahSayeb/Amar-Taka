@@ -26,11 +26,17 @@ class ExportManager {
     async exportJSON() {
         try {
             const data = await db.exportData();
+
+            // Add profile information to export
+            const profileName = profileManager ? profileManager.getActiveProfileName() : 'Personal';
+            data.profileName = profileName;
+            data.profileKey = profileManager ? profileManager.getActiveProfile() : 'personal';
+
             const jsonString = JSON.stringify(data, null, 2);
-            const filename = `finance-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            const filename = `finance-tracker-${profileName.toLowerCase()}-backup-${new Date().toISOString().split('T')[0]}.json`;
 
             Utils.downloadFile(jsonString, filename, 'application/json');
-            Utils.showToast(lang.translate('dataExported'));
+            Utils.showToast(`${profileName} profile data exported successfully!`);
         } catch (error) {
             console.error('Export error:', error);
             Utils.showToast('Error exporting data');

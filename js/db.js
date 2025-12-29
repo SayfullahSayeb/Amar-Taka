@@ -8,12 +8,21 @@ const DB_VERSION = 3;
 class Database {
     constructor() {
         this.db = null;
+        this.currentDBName = DB_NAME;
     }
 
-    // Initialize database
-    async init() {
+    // Initialize database with optional custom name for profiles
+    async init(dbName = null) {
+        // Use provided dbName or fall back to default
+        // If profileManager exists and is initialized, use profile-specific DB
+        if (!dbName && typeof profileManager !== 'undefined' && profileManager.getActiveProfileDB) {
+            dbName = profileManager.getActiveProfileDB();
+        }
+
+        this.currentDBName = dbName || DB_NAME;
+
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            const request = indexedDB.open(this.currentDBName, DB_VERSION);
 
             request.onerror = () => {
                 reject('Database failed to open');

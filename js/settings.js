@@ -6,6 +6,7 @@ class SettingsManager {
     async init() {
         await this.loadSettings();
         this.setupEventListeners();
+        this.initCustomSelects();
     }
 
     async loadSettings() {
@@ -13,8 +14,8 @@ class SettingsManager {
         const language = await db.getSetting('language') || 'en';
         document.getElementById('language-select').value = language;
 
-        // Load theme - default to system
-        const theme = await db.getSetting('theme') || 'system';
+        // Load theme - default to light
+        const theme = await db.getSetting('theme') || 'light';
         document.getElementById('theme-select').value = theme;
         this.applyTheme(theme);
 
@@ -35,6 +36,17 @@ class SettingsManager {
         // Load demo mode state
         const demoMode = localStorage.getItem('demoMode') === 'true';
         document.getElementById('demo-mode-toggle').checked = demoMode;
+
+        // Update app version display
+        const appVersionElement = document.getElementById('app-version');
+        if (appVersionElement && typeof APP_VERSION !== 'undefined') {
+            appVersionElement.textContent = APP_VERSION;
+        }
+
+        // Update profile manager UI (secondary profile toggle and switch button)
+        if (typeof profileManager !== 'undefined') {
+            profileManager.updateSettingsUI();
+        }
     }
 
     setupEventListeners() {
@@ -201,51 +213,251 @@ class SettingsManager {
         modal.classList.remove('active');
     }
 
+
     async resetData() {
-        const confirmMessage = lang.translate('dataResetConfirm');
-        const confirmed = await Utils.confirm(confirmMessage, 'Reset All Data', 'Reset');
-        if (confirmed) {
+        // Check if secondary profile is enabled
+        const hasSecondaryProfile = typeof profileManager !== 'undefined' && profileManager.isSecondaryProfileEnabled();
+
+        // Prepare warning message
+        let warningText = 'Your data will be permanently deleted and cannot be recovered.';
+        if (hasSecondaryProfile) {
+            warningText = 'All your data including your secondary profile will be permanently deleted and cannot be recovered.';
+        }
+
+        // Create modern modal
+        const modalHTML = `
+            <div id="reset-warning-modal" class="modal active">
+                <div class="modal-content reset-modal-content">
+                    <div class="reset-modal-icon">
+                        <div class="trash-icon-wrapper">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="sparkles">
+                            <span class="sparkle" style="top: 10%; left: 20%;"></span>
+                            <span class="sparkle" style="top: 20%; right: 25%;"></span>
+                            <span class="sparkle" style="bottom: 30%; left: 15%;"></span>
+                            <span class="sparkle" style="bottom: 20%; right: 20%;"></span>
+                        </div>
+                    </div>
+                    
+                    <h2 class="reset-modal-title">Reset All Data?</h2>
+                    
+                    <p class="reset-modal-text">${warningText}</p>
+                    
+                    <p class="reset-countdown-text" id="countdown-text">
+                        Please wait <span id="countdown-number">5</span> seconds...
+                    </p>
+                    
+                    <div class="reset-modal-buttons">
+                        <button type="button" class="btn-reset-cancel" id="cancel-reset-btn">Cancel</button>
+                        <button type="button" class="btn-reset-delete" id="confirm-reset-btn" disabled>
+                            <span id="reset-btn-text">Wait (<span id="reset-countdown">5</span>s)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        const modal = document.getElementById('reset-warning-modal');
+        const confirmBtn = document.getElementById('confirm-reset-btn');
+        const cancelBtn = document.getElementById('cancel-reset-btn');
+        const countdownNumber = document.getElementById('countdown-number');
+        const resetCountdown = document.getElementById('reset-countdown');
+        const countdownText = document.getElementById('countdown-text');
+        const resetBtnText = document.getElementById('reset-btn-text');
+
+        let countdown = 5;
+
+        // Countdown interval
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            countdownNumber.textContent = countdown;
+            resetCountdown.textContent = countdown;
+
+            if (countdown === 0) {
+                clearInterval(countdownInterval);
+                // Enable button
+                confirmBtn.disabled = false;
+                confirmBtn.classList.add('enabled');
+                resetBtnText.innerHTML = 'Delete';
+                countdownText.style.display = 'none';
+            }
+        }, 1000);
+
+        // Handle cancel
+        const closeModal = () => {
+            clearInterval(countdownInterval);
+            modal.remove();
+        };
+
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Handle confirm (only works after countdown)
+        confirmBtn.addEventListener('click', async () => {
+            if (confirmBtn.disabled) return;
+
+            closeModal();
+
+            // Show processing overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                color: white;
+                font-size: 24px;
+                font-weight: bold;
+            `;
+            overlay.innerHTML = '<div style="text-align: center;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i><br>Resetting data...</div>';
+            document.body.appendChild(overlay);
+
             try {
                 // Disable demo mode if active
                 if (demoModeManager.isActive()) {
                     demoModeManager.isDemoMode = false;
                     localStorage.removeItem('demoMode');
                     localStorage.removeItem('originalData');
-                    console.log('Demo mode disabled');
                 }
 
-                // Clear transactions
+                // Clear current profile data
                 await db.clearStore('transactions');
-                console.log('Transactions cleared');
-
-                // Clear categories
                 await db.clearStore('categories');
-                console.log('Categories cleared');
-
-                // Clear settings completely
                 await db.clearStore('settings');
-                console.log('Settings cleared');
 
-                // Clear localStorage onboarding flag
+                // Clear localStorage
                 localStorage.removeItem('onboardingCompleted');
-                console.log('localStorage cleared');
+                localStorage.removeItem('appLockSettings');
 
-                // Reinitialize categories with defaults
+                // If secondary profile exists, delete it
+                if (hasSecondaryProfile && typeof profileManager !== 'undefined') {
+                    await profileManager.eraseSecondaryProfileData();
+                    profileManager.profiles.secondary.enabled = false;
+                    profileManager.profiles.secondary.name = null;
+                    profileManager.saveProfileSettings();
+                }
+
+                // Reinitialize categories
                 await categoriesManager.init();
-                console.log('Categories reinitialized');
 
-                Utils.showToast('Successfully Removed All Data!');
+                overlay.innerHTML = '<div style="text-align: center;"><i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 20px; color: var(--success-color);"></i><br>Data reset complete!</div>';
 
-                // Redirect to onboarding after a short delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                document.body.removeChild(overlay);
+
+                Utils.showToast('All data has been reset');
+
+                // Redirect to onboarding
                 setTimeout(() => {
                     window.location.href = 'onboarding.html';
-                }, 1500);
+                }, 500);
             } catch (error) {
                 console.error('Reset error:', error);
-                Utils.showToast('Error resetting data: ' + error.message);
-                alert('Failed to reset data. Please try again or clear your browser data manually.');
+                document.body.removeChild(overlay);
+                Utils.showToast('Error resetting data. Please try again.');
             }
-        }
+        });
+    }
+
+    // Custom Select Dropdown for Settings
+    initCustomSelects() {
+        const selects = document.querySelectorAll('.setting-select');
+        selects.forEach(select => this.createCustomSelect(select));
+    }
+
+    createCustomSelect(selectElement) {
+        const selectedValue = selectElement.value;
+
+        // Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper';
+
+        // Create selected display
+        const selected = document.createElement('div');
+        selected.className = 'custom-select-selected';
+
+        const selectedText = document.createElement('span');
+        selectedText.className = 'custom-select-text';
+        selectedText.textContent = selectElement.options[selectElement.selectedIndex].textContent;
+
+        const arrow = document.createElement('i');
+        arrow.className = 'fas fa-chevron-down custom-select-arrow';
+
+        selected.appendChild(selectedText);
+        selected.appendChild(arrow);
+
+        // Create options list
+        const optionsList = document.createElement('div');
+        optionsList.className = 'custom-select-options';
+
+        Array.from(selectElement.options).forEach(option => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'custom-select-option';
+            optionDiv.textContent = option.textContent;
+            optionDiv.dataset.value = option.value;
+
+            if (option.value === selectedValue) {
+                optionDiv.classList.add('selected');
+            }
+
+            optionsList.appendChild(optionDiv);
+        });
+
+        wrapper.appendChild(selected);
+        wrapper.appendChild(optionsList);
+
+        // Insert after original select
+        selectElement.parentNode.insertBefore(wrapper, selectElement.nextSibling);
+        selectElement.style.display = 'none';
+
+        // Event listeners
+        selected.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close other dropdowns
+            document.querySelectorAll('.custom-select-wrapper.open').forEach(w => {
+                if (w !== wrapper) w.classList.remove('open');
+            });
+            wrapper.classList.toggle('open');
+        });
+
+        optionsList.querySelectorAll('.custom-select-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const value = option.dataset.value;
+                const text = option.textContent;
+
+                selectedText.textContent = text;
+                selectElement.value = value;
+
+                // Trigger change event
+                const event = new Event('change', { bubbles: true });
+                selectElement.dispatchEvent(event);
+
+                // Update selected class
+                optionsList.querySelectorAll('.custom-select-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === value) {
+                        opt.classList.add('selected');
+                    }
+                });
+
+                wrapper.classList.remove('open');
+            });
+        });
+
+        // Close on outside click
+        document.addEventListener('click', () => {
+            wrapper.classList.remove('open');
+        });
     }
 }
 
