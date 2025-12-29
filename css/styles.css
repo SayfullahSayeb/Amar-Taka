@@ -108,6 +108,10 @@ body {
     overflow-x: hidden;
 }
 
+input {
+    height: 50px;
+}
+
 /* ===================================
    App Container
    =================================== */
@@ -2746,6 +2750,38 @@ body {
     max-height: 200px;
     opacity: 1;
     overflow-y: auto;
+}
+
+/* Dropdown opens upward when near bottom */
+.custom-select-wrapper.dropup .custom-select-options {
+    top: auto;
+    bottom: 100%;
+    border-top: 2px solid var(--primary-color);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.custom-select-wrapper.dropup.open .custom-select-selected {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+/* Force category type dropdown to always open upward */
+#category-type+.custom-select-wrapper .custom-select-options {
+    top: auto;
+    bottom: 100%;
+    border-top: 2px solid var(--primary-color);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+#category-type+.custom-select-wrapper.open .custom-select-selected {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
 }
 
 .custom-select-option {

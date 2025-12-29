@@ -430,8 +430,25 @@ class SettingsManager {
             e.stopPropagation();
             // Close other dropdowns
             document.querySelectorAll('.custom-select-wrapper.open').forEach(w => {
-                if (w !== wrapper) w.classList.remove('open');
+                if (w !== wrapper) {
+                    w.classList.remove('open');
+                    w.classList.remove('dropup');
+                }
             });
+
+            // Check if dropdown should open upward
+            const rect = wrapper.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            const dropdownHeight = 100; // max-height of dropdown
+
+            // If not enough space below but enough space above, open upward
+            if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+                wrapper.classList.add('dropup');
+            } else {
+                wrapper.classList.remove('dropup');
+            }
+
             wrapper.classList.toggle('open');
         });
 

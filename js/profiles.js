@@ -85,13 +85,38 @@ class ProfileManager {
 
     async setupSecondaryProfile(name, currency, budget) {
         try {
+            // Check if secondary profile database already exists (was disabled with data preserved)
+            const dbName = this.DB_PREFIX + 'secondary';
+            const databases = await indexedDB.databases();
+            const dbExists = databases.some(db => db.name === dbName);
+
             // Set profile name
             this.profiles.secondary.name = name;
             this.profiles.secondary.enabled = true;
             this.saveProfileSettings();
 
-            // Initialize secondary profile database
-            await this.initializeProfileDatabase('secondary', currency, budget, name);
+            // Only initialize if database doesn't exist (first time setup)
+            if (!dbExists) {
+                await this.initializeProfileDatabase('secondary', currency, budget, name);
+            } else {
+                // Database exists, just update the settings
+                const tempDB = new Database();
+                await tempDB.init(dbName);
+
+                if (name) {
+                    await tempDB.update('settings', { key: 'userName', value: name });
+                }
+                if (currency) {
+                    await tempDB.update('settings', { key: 'currency', value: currency });
+                }
+                if (budget) {
+                    await tempDB.update('settings', { key: 'monthlyBudget', value: budget });
+                }
+
+                if (tempDB.db) {
+                    tempDB.db.close();
+                }
+            }
 
             Utils.showToast(`${name} profile created successfully!`);
 
@@ -126,6 +151,8 @@ class ProfileManager {
             if (eraseData) {
                 // Erase all data from secondary profile
                 await this.eraseSecondaryProfileData();
+                // Clear the profile name so it's treated as new setup next time
+                this.profiles.secondary.name = null;
             }
 
             this.profiles.secondary.enabled = false;
@@ -386,7 +413,18 @@ class ProfileManager {
         if (toggle) {
             toggle.addEventListener('change', async (e) => {
                 if (e.target.checked) {
-                    this.openSecondarySetupModal();
+                    // Check if profile was previously set up (has a name)
+                    if (this.profiles.secondary.name) {
+                        // Profile exists, just re-enable it
+                        this.profiles.secondary.enabled = true;
+                        this.saveProfileSettings();
+                        Utils.showToast(`${this.profiles.secondary.name} profile re-enabled`);
+                        this.updateSettingsUI();
+                        this.updateSwitchIconVisibility();
+                    } else {
+                        // First time setup
+                        this.openSecondarySetupModal();
+                    }
                 } else {
                     this.openDisableSecondaryModal();
                 }
