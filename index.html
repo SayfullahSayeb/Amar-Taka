@@ -1020,7 +1020,7 @@
                 // Check if settings store exists
                 if (!db.objectStoreNames.contains('settings')) {
                     // Database not initialized, show onboarding
-                    window.location.href = 'onboarding.html';
+                    window.location.href = 'pages/onboarding.html';
                     return;
                 }
 
@@ -1031,7 +1031,7 @@
                 getRequest.onsuccess = function () {
                     if (!getRequest.result || !getRequest.result.value) {
                         // Redirect to onboarding
-                        window.location.href = 'onboarding.html';
+                        window.location.href = 'pages/onboarding.html';
                     } else {
                         // Also set in localStorage for faster future checks
                         localStorage.setItem('onboardingCompleted', 'true');
@@ -1040,13 +1040,13 @@
 
                 getRequest.onerror = function () {
                     // If error or no data, show onboarding
-                    window.location.href = 'onboarding.html';
+                    window.location.href = 'pages/onboarding.html';
                 };
             };
 
             request.onerror = function () {
                 // If database doesn't exist, show onboarding
-                window.location.href = 'onboarding.html';
+                window.location.href = 'pages/onboarding.html';
             };
         })();
     </script>
