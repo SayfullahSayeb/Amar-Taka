@@ -80,6 +80,44 @@ The app follows modern web design principles:
 - Mobile-first approach
 - No zoom on mobile for app-like experience
 
+## Progressive Web App (PWA)
+
+The app is a fully functional Progressive Web App with offline support:
+
+### PWA Features
+- **Offline Access** - Works completely offline after first load
+- **Install to Home Screen** - Add to your device like a native app
+- **Fast Loading** - Cached assets for instant loading
+- **Auto Updates** - Automatic background updates when online
+- **App-like Experience** - Full-screen, no browser UI
+
+### Service Worker
+The service worker (`sw.js`) provides:
+- **Cache-First Strategy** for static assets (HTML, CSS, JS, images)
+- **Network-First Strategy** for dynamic data
+- **Offline Fallback** - Graceful handling when offline
+- **Background Sync** - Ready for future sync features
+- **Push Notifications** - Infrastructure for future notifications
+
+### Installation
+1. **Desktop (Chrome/Edge)**:
+   - Click the install icon in the address bar
+   - Or go to Settings → Install Amar Taka
+
+2. **Mobile (Android)**:
+   - Tap the menu (⋮) → "Add to Home screen"
+   - Or tap the install banner when it appears
+
+3. **Mobile (iOS)**:
+   - Tap the Share button
+   - Select "Add to Home Screen"
+
+### Cache Management
+The app automatically caches all necessary files for offline use. To clear cache:
+- The service worker automatically updates when a new version is available
+- Manual cache clearing can be triggered via browser DevTools
+
+
 ## Data Privacy
 
 - 100% Local - All data stays on your device

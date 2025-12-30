@@ -1,0 +1,41 @@
+{
+  "name": "Amar Taka",
+  "short_name": "Amar Taka",
+  "description": "A offline-first finance tracking application. Built for students, professionals, and small business users who want complete control over their financial data.",
+  "start_url": "/",
+  "scope": "/",
+  "lang": "en-US",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#29756F",
+  "dir": "ltr",
+  "orientation": "portrait",
+  "categories": [
+    "finance"
+  ],
+  "screenshots": [
+    {
+      "src": "image/screenshot-1.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "image/image/screenshot-2.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "image/screenshot-3.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg"
+    }
+  ],
+  "icons": [
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "image/icon.png",
+      "type": "image/png"
+    }
+  ]
+}
