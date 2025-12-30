@@ -18,6 +18,9 @@ class App {
             // Initialize database with profile-specific name
             await db.init();
 
+            // Apply saved theme immediately to prevent browser override
+            await this.initializeTheme();
+
             // Initialize language system
             await lang.init();
 
@@ -35,6 +38,7 @@ class App {
             await goalsManager.init();
             await exportManager.init();
             await settingsManager.init();
+            await notificationsManager.init();
 
             // Setup profile manager event listeners
             profileManager.setupEventListeners();
@@ -52,6 +56,19 @@ class App {
         } catch (error) {
             console.error('Initialization error:', error);
             alert('Failed to initialize the app. Please refresh the page.');
+        }
+    }
+
+    async initializeTheme() {
+        const savedTheme = await db.getSetting('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        } else if (savedTheme === 'system') {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
         }
     }
 

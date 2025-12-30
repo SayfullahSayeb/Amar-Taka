@@ -261,6 +261,9 @@ class SettingsManager {
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
+        // Lock body scroll
+        document.body.classList.add('modal-open');
+
         const modal = document.getElementById('reset-warning-modal');
         const confirmBtn = document.getElementById('confirm-reset-btn');
         const cancelBtn = document.getElementById('cancel-reset-btn');
@@ -290,6 +293,7 @@ class SettingsManager {
         // Handle cancel
         const closeModal = () => {
             clearInterval(countdownInterval);
+            document.body.classList.remove('modal-open');
             modal.remove();
         };
 

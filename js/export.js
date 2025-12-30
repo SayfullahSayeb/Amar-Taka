@@ -106,18 +106,68 @@ class ExportManager {
 
     async exportJSON() {
         try {
-            const data = await db.exportData();
+            // Export current profile data
+            const currentProfileData = await db.exportData();
+            const currentProfile = profileManager ? profileManager.getActiveProfile() : 'personal';
+            const currentProfileName = profileManager ? profileManager.getActiveProfileName() : 'Personal';
 
-            // Add profile information to export
-            const profileName = profileManager ? profileManager.getActiveProfileName() : 'Personal';
-            data.profileName = profileName;
-            data.profileKey = profileManager ? profileManager.getActiveProfile() : 'personal';
+            // Check if secondary profile exists and export it too
+            let secondaryProfileData = null;
+            const secondaryEnabled = await db.getSetting('secondaryProfileEnabled');
 
-            const jsonString = JSON.stringify(data, null, 2);
-            const filename = `finance-tracker-${profileName.toLowerCase()}-backup-${new Date().toISOString().split('T')[0]}.json`;
+            if (secondaryEnabled && profileManager) {
+                // Temporarily switch to get secondary profile data
+                const originalProfile = currentProfile;
+                const secondaryProfile = currentProfile === 'personal' ? 'secondary' : 'personal';
+                const secondaryDBName = secondaryProfile === 'personal' ? 'FinanceTrackerDB' : 'FinanceTrackerDB_Secondary';
+
+                // Create temporary db instance for secondary profile
+                const tempDb = new Database();
+                await tempDb.init(secondaryDBName);
+                secondaryProfileData = await tempDb.exportData();
+
+                // Get secondary profile name
+                const secondaryName = await tempDb.getSetting('userName') || (secondaryProfile === 'personal' ? 'Personal' : 'Secondary');
+                secondaryProfileData.profileName = secondaryName;
+                secondaryProfileData.profileKey = secondaryProfile;
+            }
+
+            // Create combined export
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                version: currentProfileData.version,
+                profiles: {
+                    [currentProfile]: {
+                        profileName: currentProfileName,
+                        profileKey: currentProfile,
+                        transactions: currentProfileData.transactions,
+                        categories: currentProfileData.categories,
+                        settings: currentProfileData.settings,
+                        goals: currentProfileData.goals
+                    }
+                }
+            };
+
+            // Add secondary profile if exists
+            if (secondaryProfileData) {
+                const secondaryKey = secondaryProfileData.profileKey;
+                exportData.profiles[secondaryKey] = {
+                    profileName: secondaryProfileData.profileName,
+                    profileKey: secondaryKey,
+                    transactions: secondaryProfileData.transactions,
+                    categories: secondaryProfileData.categories,
+                    settings: secondaryProfileData.settings,
+                    goals: secondaryProfileData.goals
+                };
+            }
+
+            const jsonString = JSON.stringify(exportData, null, 2);
+            const filename = `amar-taka-backup-${new Date().toISOString().split('T')[0]}.json`;
 
             Utils.downloadFile(jsonString, filename, 'application/json');
-            Utils.showToast(`${profileName} profile data exported successfully. (Does not include other profiles)`);
+
+            const profileCount = Object.keys(exportData.profiles).length;
+            Utils.showToast(`Backup created with ${profileCount} profile${profileCount > 1 ? 's' : ''}`);
         } catch (error) {
             console.error('Export error:', error);
             Utils.showToast('Error exporting data');
@@ -147,44 +197,71 @@ class ExportManager {
             try {
                 const data = JSON.parse(e.target.result);
 
-                // Validate data structure
-                if (!data.transactions && !data.categories && !data.settings) {
-                    Utils.showToast('Invalid backup file format');
-                    return;
-                }
+                // Check if this is new multi-profile format or old single-profile format
+                const isMultiProfile = data.profiles !== undefined;
 
-                // Check for profile mismatch
-                const currentProfile = profileManager.getActiveProfile();
-                const currentProfileName = profileManager.getActiveProfileName();
-                const backupProfile = data.profileName || 'Unknown';
-                const backupProfileKey = data.profileKey; // May be undefined for old backups
+                if (isMultiProfile) {
+                    // New format with multiple profiles
+                    const profileKeys = Object.keys(data.profiles);
+                    const profileNames = profileKeys.map(key => data.profiles[key].profileName).join(', ');
 
-                let confirmMessage = lang.translate('dataResetConfirm');
-                let confirmTitle = 'Restore Data';
+                    const confirmed = await Utils.confirm(
+                        `This backup contains ${profileKeys.length} profile(s): ${profileNames}\n\nAll data will be restored to their respective profiles.\n\nThis will overwrite existing data in both profiles.`,
+                        'Restore Multi-Profile Backup',
+                        'Restore'
+                    );
 
-                if (backupProfileKey && backupProfileKey !== currentProfile) {
-                    confirmMessage = `⚠️ WARNING: You are attempting to restore '${backupProfile}' data into your '${currentProfileName}' profile.\n\nThis will completely overwrite your current '${currentProfileName}' data with data from a different profile.\n\nAre you sure you want to proceed?`;
-                    confirmTitle = 'Profile Mismatch Warning';
-                }
+                    if (!confirmed) return;
 
-                // Confirm import
-                const confirmed = await Utils.confirm(confirmMessage, confirmTitle, 'Restore');
-                if (!confirmed) {
-                    return;
-                }
+                    // Restore each profile
+                    for (const profileKey of profileKeys) {
+                        const profileData = data.profiles[profileKey];
+                        const dbName = profileKey === 'personal' ? 'FinanceTrackerDB' : 'FinanceTrackerDB_Secondary';
 
-                const success = await db.importData(data);
+                        const tempDb = new Database();
+                        await tempDb.init(dbName);
+                        await tempDb.importData(profileData);
+                    }
 
-                if (success) {
-                    Utils.showToast(lang.translate('dataImported'));
-
-                    // Reload the app
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    Utils.showToast(`Restored ${profileKeys.length} profile(s) successfully`);
                 } else {
-                    Utils.showToast('Error importing data');
+                    // Old format - single profile backup
+                    if (!data.transactions && !data.categories && !data.settings) {
+                        Utils.showToast('Invalid backup file format');
+                        return;
+                    }
+
+                    const currentProfile = profileManager.getActiveProfile();
+                    const currentProfileName = profileManager.getActiveProfileName();
+                    const backupProfile = data.profileName || 'Unknown';
+                    const backupProfileKey = data.profileKey;
+
+                    let confirmMessage = 'This will restore your data from the backup file.\n\nAll current data will be replaced.';
+                    let confirmTitle = 'Restore Data';
+
+                    if (backupProfileKey && backupProfileKey !== currentProfile) {
+                        confirmMessage = `⚠️ WARNING: You are attempting to restore '${backupProfile}' data into your '${currentProfileName}' profile.\n\nThis will completely overwrite your current '${currentProfileName}' data with data from a different profile.\n\nAre you sure you want to proceed?`;
+                        confirmTitle = 'Profile Mismatch Warning';
+                    }
+
+                    const confirmed = await Utils.confirm(confirmMessage, confirmTitle, 'Restore');
+                    if (!confirmed) return;
+
+                    const success = await db.importData(data);
+
+                    if (!success) {
+                        Utils.showToast('Error importing data');
+                        return;
+                    }
+
+                    Utils.showToast('Data restored successfully');
                 }
+
+                // Reload the app after successful import
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
             } catch (error) {
                 console.error('Import error:', error);
                 Utils.showToast('Error importing data - Invalid file format');

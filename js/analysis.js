@@ -73,21 +73,9 @@ class AnalysisManager {
         let progressPercent = 0;
         let adviceText = '';
 
-        let safeDailySpend = 0;
-        let showSafeDaily = false;
-
         if (budget > 0) {
             progressPercent = (totalExpense / budget) * 100;
             const remaining = Math.max(0, budget - totalExpense);
-
-            // Calculate safe daily spend if monthly view
-            if (this.currentPeriod === 'month') {
-                const today = new Date();
-                const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-                const daysLeft = Math.max(1, daysInMonth - today.getDate());
-                safeDailySpend = remaining / daysLeft;
-                showSafeDaily = true;
-            }
 
             if (progressPercent > 100) {
                 statusText = lang.translate('statusDanger');
@@ -145,16 +133,6 @@ class AnalysisManager {
                                     <span class="progress-text" style="color: ${statusColor};">${Utils.formatCurrency(Math.max(0, budget - totalExpense), this.currency)} left</span>
                                 </div>
                             </div>
-                            
-                            ${showSafeDaily && safeDailySpend > 0 ? `
-                                <div style="background: rgba(var(--primary-rgb, 67, 136, 131), 0.08); padding: 12px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
-                                    <div>
-                                        <span style="display: block; font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">${lang.translate('safeDaily')}</span>
-                                        <span style="font-size: 1.1rem; font-weight: bold; color: var(--primary-color);">${Utils.formatCurrency(safeDailySpend, this.currency)}<span style="font-size: 0.8rem; font-weight: normal; color: var(--text-tertiary); margin-left: 4px;">/${lang.translate('day')}</span></span>
-                                    </div>
-                                    <i class="fas fa-shield-halved" style="color: var(--primary-color); opacity: 0.5; font-size: 1.4rem;"></i>
-                                </div>
-                            ` : ''}
                         ` : ''}
                     </div>
                 </div>
@@ -184,7 +162,7 @@ class AnalysisManager {
 
         let effectiveToday = today;
         if (today < range.start) effectiveToday = range.start;
-        if (today > range.end)   effectiveToday = range.end;
+        if (today > range.end) effectiveToday = range.end;
 
         let daysPassed = Math.floor((effectiveToday - range.start) / dayMs) + 1;
         if (daysPassed < 1) daysPassed = 1;
@@ -198,7 +176,7 @@ class AnalysisManager {
         // Avg Daily Spend
         // =========================
         const avgDaily = totalExpense > 0 ? (totalExpense / daysPassed) : 0;
-        document.getElementById('avg-daily').textContent = 
+        document.getElementById('avg-daily').textContent =
             Utils.formatCurrency(avgDaily, this.currency);
 
         // =========================
@@ -227,11 +205,11 @@ class AnalysisManager {
         if (this.currentPeriod === 'week') {
             calculatedBudget = dailyBudget * 7;
             if (budgetLabel) budgetLabel.textContent = lang.translate('weekly') + ' Budget';
-        } 
+        }
         else if (this.currentPeriod === 'year') {
             calculatedBudget = monthlyBudget * 12;
             if (budgetLabel) budgetLabel.textContent = lang.translate('yearly') + ' Budget';
-        } 
+        }
         else {
             calculatedBudget = monthlyBudget;
             if (budgetLabel) budgetLabel.textContent = lang.translate('monthly') + ' Budget';
@@ -265,13 +243,13 @@ class AnalysisManager {
         else {
             const daysInYear =
                 (new Date(today.getFullYear(), 11, 31) -
-                new Date(today.getFullYear(), 0, 1)) / dayMs + 1;
+                    new Date(today.getFullYear(), 0, 1)) / dayMs + 1;
 
             suggestedDaily = calculatedBudget / daysInYear;
         }
 
-    if (suggestedElement)
-    suggestedElement.textContent = Utils.formatCurrency(suggestedDaily, this.currency);
+        if (suggestedElement)
+            suggestedElement.textContent = Utils.formatCurrency(suggestedDaily, this.currency);
 
     }
 

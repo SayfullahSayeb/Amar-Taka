@@ -1,6 +1,6 @@
 {
   "name": "Amar Taka",
-  "short_name": "আমার টাকা",
+  "short_name": "Amar Taka",
   "description": "A offline-first finance tracking application. Built for students, professionals, and small business users who want complete control over their financial data.",
   "start_url": "./",
   "scope": "./",
