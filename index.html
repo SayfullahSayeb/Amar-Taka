@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Professional Finance Expense Tracker - Track your income and expenses offline">
-    <link rel="icon" type="image/png" href="image/icon.png">
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <title>Amar Taka</title>
 
     <!-- Version Configuration (Load First) -->
@@ -1152,6 +1152,7 @@
         });
     </script>
 
+
     <!-- Service Worker Registration -->
     <script>
         // Register Service Worker for PWA functionality
@@ -1159,8 +1160,6 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then((registration) => {
-                        console.log('[PWA] Service Worker registered successfully:', registration.scope);
-
                         // Check for updates periodically
                         setInterval(() => {
                             registration.update();
@@ -1169,12 +1168,9 @@
                         // Handle service worker updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
-                            
+
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New service worker available, show update notification
-                                    console.log('[PWA] New version available! Please refresh.');
-                                    
                                     // Optional: Show a toast notification to the user
                                     if (window.showToast) {
                                         showToast('New version available! Refresh to update.', 'info');
@@ -1183,17 +1179,13 @@
                             });
                         });
                     })
-                    .catch((error) => {
-                        // Only log error if not running from file:// protocol
-                        if (window.location.protocol !== 'file:') {
-                            console.error('[PWA] Service Worker registration failed:', error);
-                        }
+                    .catch(() => {
+                        // Silently fail for file:// protocol
                     });
 
                 // Listen for messages from service worker
                 navigator.serviceWorker.addEventListener('message', (event) => {
                     if (event.data && event.data.type === 'CACHE_CLEARED') {
-                        console.log('[PWA]', event.data.message);
                         if (window.showToast) {
                             showToast('Cache cleared successfully', 'success');
                         }

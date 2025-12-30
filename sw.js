@@ -1,8 +1,9 @@
 // Service Worker for Amar Taka PWA
-// Version 1.0.0
+// Import version from version.js
+importScripts('js/version.js');
 
-const CACHE_NAME = 'amar-taka-v1';
-const DATA_CACHE_NAME = 'amar-taka-data-v1';
+const CACHE_NAME = `amar-taka-v${APP_VERSION}`;
+const DATA_CACHE_NAME = `amar-taka-data-v${APP_VERSION}`;
 
 // Assets to cache on install
 const STATIC_ASSETS = [
@@ -15,6 +16,7 @@ const STATIC_ASSETS = [
     '/css/bk.css',
 
     // JavaScript files
+    '/js/version.js',
     '/js/app.js',
     '/js/db.js',
     '/js/home.js',
@@ -32,11 +34,11 @@ const STATIC_ASSETS = [
     '/js/export.js',
     '/js/lang.js',
     '/js/utils.js',
-    '/js/version.js',
     '/js/modal-scroll-lock.js',
 
     // Images
     '/image/icon.png',
+    '/image/favicon.png',
 
     // Pages
     '/pages/onboarding.html',
@@ -46,16 +48,12 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-    console.log('[Service Worker] Installing...');
-
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[Service Worker] Caching static assets');
                 return cache.addAll(STATIC_ASSETS);
             })
             .then(() => {
-                console.log('[Service Worker] Installation complete');
                 return self.skipWaiting();
             })
             .catch((error) => {
@@ -66,22 +64,18 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-    console.log('[Service Worker] Activating...');
-
     event.waitUntil(
         caches.keys()
             .then((cacheNames) => {
                 return Promise.all(
                     cacheNames.map((cacheName) => {
                         if (cacheName !== CACHE_NAME && cacheName !== DATA_CACHE_NAME) {
-                            console.log('[Service Worker] Deleting old cache:', cacheName);
                             return caches.delete(cacheName);
                         }
                     })
                 );
             })
             .then(() => {
-                console.log('[Service Worker] Activation complete');
                 return self.clients.claim();
             })
     );
@@ -134,8 +128,6 @@ self.addEventListener('fetch', (event) => {
                 return fetchAndCache(request);
             })
             .catch((error) => {
-                console.error('[Service Worker] Fetch failed:', error);
-
                 // Return offline fallback page if available
                 if (request.destination === 'document') {
                     return caches.match('/index.html');
@@ -206,7 +198,7 @@ self.addEventListener('sync', (event) => {
     if (event.tag === 'sync-transactions') {
         event.waitUntil(
             // Add your sync logic here
-            console.log('[Service Worker] Background sync triggered')
+            Promise.resolve()
         );
     }
 });
@@ -248,4 +240,4 @@ self.addEventListener('notificationclick', (event) => {
     );
 });
 
-console.log('[Service Worker] Loaded successfully');
+console.log('[Service Worker] Active');

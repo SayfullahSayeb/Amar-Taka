@@ -4,13 +4,20 @@
 The `sw.js` file is the service worker for the Amar Taka PWA. It enables offline functionality, caching, and provides the foundation for a native app-like experience.
 
 ## Version Management
-- **Current Cache Version**: `amar-taka-v1`
-- **Data Cache Version**: `amar-taka-data-v1`
+The service worker uses the same version system as the rest of the app by importing `version.js`:
 
-When updating the app, increment the version number to force cache updates:
 ```javascript
-const CACHE_NAME = 'amar-taka-v2'; // Increment version
+importScripts('js/version.js');
+const CACHE_NAME = `amar-taka-v${APP_VERSION}`;
+const DATA_CACHE_NAME = `amar-taka-data-v${APP_VERSION}`;
 ```
+
+When updating the app, simply increment the version in `js/version.js`:
+```javascript
+const APP_VERSION = "2.0.7"; // Increment version
+```
+
+This ensures the service worker cache version stays in sync with the app version automatically.
 
 ## Caching Strategy
 
