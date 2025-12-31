@@ -2,12 +2,12 @@ class NotificationsManager {
     constructor() {
         this.notifications = [];
         this.unreadCount = 0;
-        // ADD YOUR GOOGLE SHEETS JSON URL HERE:
         this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1HVA23xlT1WIhz4aO6NIz5Ek2LoVlWVo2cnACNLbXtts/gviz/tq?tqx=out:json';
     }
 
     async init() {
         await this.loadNotifications();
+        await this.expireOldNotifications();
         await this.fetchFromSheets();
         this.setupEventListeners();
         this.updateBadge();
@@ -59,6 +59,32 @@ class NotificationsManager {
             this.updateBadge();
         } catch (error) {
             console.error('Error saving notifications:', error);
+        }
+    }
+
+    async expireOldNotifications() {
+        try {
+            const EXPIRATION_DAYS = 30; // Notifications older than 30 days will be removed
+            const now = new Date();
+            const expirationDate = new Date(now.getTime() - (EXPIRATION_DAYS * 24 * 60 * 60 * 1000));
+
+            const initialCount = this.notifications.length;
+
+            // Filter out notifications older than expiration date
+            this.notifications = this.notifications.filter(notification => {
+                const notifDate = new Date(notification.date);
+                return notifDate >= expirationDate;
+            });
+
+            const expiredCount = initialCount - this.notifications.length;
+
+            // Save if any notifications were expired
+            if (expiredCount > 0) {
+                console.log(`Expired ${expiredCount} old notification(s)`);
+                await this.saveNotifications();
+            }
+        } catch (error) {
+            console.error('Error expiring old notifications:', error);
         }
     }
 

@@ -388,29 +388,37 @@ class DemoModeManager {
     }
 
     async refreshAllPages() {
-        // Refresh home page
-        if (typeof homeManager !== 'undefined') {
-            await homeManager.render();
-        }
+        // Get the currently active page
+        const activePage = document.querySelector('.page.active');
+        const activePageId = activePage ? activePage.id.replace('-page', '') : 'home';
 
-        // Refresh transactions page
-        if (typeof transactionsManager !== 'undefined') {
-            await transactionsManager.render();
-        }
-
-        // Refresh analysis page
-        if (typeof analysisManager !== 'undefined') {
-            await analysisManager.render();
-        }
-
-        // Refresh goals page
-        if (typeof goalsManager !== 'undefined') {
-            await goalsManager.loadGoals();
-        }
-
-        // Refresh settings
-        if (typeof settingsManager !== 'undefined') {
-            await settingsManager.loadSettings();
+        // Only refresh the currently active page to prevent navigation issues
+        switch (activePageId) {
+            case 'home':
+                if (typeof homeManager !== 'undefined') {
+                    await homeManager.render();
+                }
+                break;
+            case 'transactions':
+                if (typeof transactionsManager !== 'undefined') {
+                    await transactionsManager.render();
+                }
+                break;
+            case 'analysis':
+                if (typeof analysisManager !== 'undefined') {
+                    await analysisManager.render();
+                }
+                break;
+            case 'goals':
+                if (typeof goalsManager !== 'undefined') {
+                    await goalsManager.loadGoals();
+                }
+                break;
+            case 'settings':
+                if (typeof settingsManager !== 'undefined') {
+                    await settingsManager.loadSettings();
+                }
+                break;
         }
     }
 

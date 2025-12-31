@@ -37,6 +37,9 @@ class SettingsManager {
         const demoMode = localStorage.getItem('demoMode') === 'true';
         document.getElementById('demo-mode-toggle').checked = demoMode;
 
+        // Toggle demo mode visibility class
+        this.updateDemoModeVisibility(demoMode);
+
         // Update app version display
         const appVersionElement = document.getElementById('app-version');
         if (appVersionElement && typeof APP_VERSION !== 'undefined') {
@@ -46,6 +49,17 @@ class SettingsManager {
         // Update profile manager UI (secondary profile toggle and switch button)
         if (typeof profileManager !== 'undefined') {
             profileManager.updateSettingsUI();
+        }
+    }
+
+    updateDemoModeVisibility(isDemoMode) {
+        const settingsPage = document.getElementById('settings-page');
+        if (settingsPage) {
+            if (isDemoMode) {
+                settingsPage.classList.add('demo-mode-active');
+            } else {
+                settingsPage.classList.remove('demo-mode-active');
+            }
         }
     }
 
@@ -187,8 +201,10 @@ class SettingsManager {
         document.getElementById('demo-mode-toggle').addEventListener('change', async (e) => {
             if (e.target.checked) {
                 await demoModeManager.enableDemoMode();
+                this.updateDemoModeVisibility(true);
             } else {
                 await demoModeManager.disableDemoMode();
+                this.updateDemoModeVisibility(false);
             }
         });
     }

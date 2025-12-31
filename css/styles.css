@@ -4053,6 +4053,8 @@ body.modal-open {
 /* Feedback Modal Body */
 .feedback-modal-body {
     padding: 24px;
+    max-height: calc(80vh - 70px);
+    overflow-y: auto;
 }
 
 .feedback-title {
@@ -4366,4 +4368,13 @@ body.modal-open {
     .feedback-option-text {
         font-size: 0.9rem;
     }
+}
+
+/* ===================================
+   Demo Mode Utilities
+   =================================== */
+
+/* Hide elements when demo mode is active */
+.demo-mode-active .demo-mode-hide {
+    display: none !important;
 }

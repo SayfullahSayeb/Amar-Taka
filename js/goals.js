@@ -189,7 +189,7 @@ class GoalsManager {
         const isCompleted = goal.status === 'completed';
 
         let deadlineHtml = '';
-        if (goal.deadline) {
+        if (goal.deadline && !isCompleted) {
             const deadline = new Date(goal.deadline);
             const today = new Date();
             const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
@@ -202,7 +202,7 @@ class GoalsManager {
             }
 
             deadlineHtml = `
-                <div class="${deadlineClass}">
+                <div class="${deadlineClass}" style="display: inline-flex; align-items: center; gap: 4px; margin-left: 8px;">
                     <i class="fas fa-calendar-alt"></i>
                     <span>${daysLeft >= 0 ? `${daysLeft} days left` : `${Math.abs(daysLeft)} days overdue`}</span>
                 </div>
@@ -213,11 +213,10 @@ class GoalsManager {
             <div class="goal-card ${isCompleted ? 'completed' : ''}" id="goal-${goal.id}">
                 <div class="goal-header">
                     <div class="goal-info">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <h3 class="goal-name" style="margin: 0;">${this.escapeHtml(goal.name)}</h3>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                            <h3 class="goal-name" style="margin: 0; display: inline-flex; align-items: center;">${this.escapeHtml(goal.name)}${deadlineHtml}</h3>
                             ${isCompleted ? '<div class="goal-completed-badge" style="position: static;"><i class="fas fa-check-circle"></i> Completed</div>' : ''}
                         </div>
-                        ${deadlineHtml}
                     </div>
                     <button class="goal-edit-btn goal-action-btn" title="Edit Goal">
                         <i class="fas fa-edit"></i>
