@@ -41,7 +41,7 @@ class AutoUpdateManager {
 
         // When coming back online, check for updates immediately
         setTimeout(() => {
-            this.checkForUpdates(true); // Force check and auto-reload
+            this.checkForUpdates(true); // Force check
         }, 2000); // Wait 2 seconds for connection to stabilize
     }
 
@@ -51,23 +51,11 @@ class AutoUpdateManager {
 
     setupServiceWorkerListener() {
         if ('serviceWorker' in navigator) {
+            // The main service worker registration handles updates
+            // This just ensures we trigger update checks when appropriate
             navigator.serviceWorker.ready.then(registration => {
-                // Listen for service worker updates
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // New service worker is installed, auto-reload
-                            this.autoReload();
-                        }
-                    });
-                });
-
-                // Check for updates periodically
-                setInterval(() => {
-                    registration.update();
-                }, this.checkInterval);
+                // Trigger an immediate update check
+                registration.update();
             });
         }
     }
@@ -103,7 +91,8 @@ class AutoUpdateManager {
             const response = await fetch(`js/version.js?t=${Date.now()}`, {
                 cache: 'no-cache',
                 headers: {
-                    'Cache-Control': 'no-cache'
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
                 }
             });
 
@@ -118,8 +107,18 @@ class AutoUpdateManager {
 
                     // Compare versions
                     if (latestVersion !== this.currentVersion) {
-                        // New version detected! Auto-reload
-                        this.autoReload();
+                        // Trigger service worker update
+                        if ('serviceWorker' in navigator) {
+                            const registration = await navigator.serviceWorker.getRegistration();
+                            if (registration) {
+                                await registration.update();
+                            }
+                        }
+
+                        // Auto-reload if forced
+                        if (forceReload) {
+                            this.autoReload();
+                        }
                     }
                 }
             }

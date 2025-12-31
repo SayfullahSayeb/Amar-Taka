@@ -82,6 +82,18 @@ self.addEventListener('activate', (event) => {
             .then(() => {
                 return self.clients.claim();
             })
+            .then(() => {
+                // Notify all clients that a new version is active
+                return self.clients.matchAll();
+            })
+            .then((clients) => {
+                clients.forEach((client) => {
+                    client.postMessage({
+                        type: 'NEW_VERSION_ACTIVATED',
+                        version: CACHE_NAME
+                    });
+                });
+            })
     );
 });
 

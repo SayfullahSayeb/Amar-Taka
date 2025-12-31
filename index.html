@@ -1306,30 +1306,36 @@
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
                     refreshing = true;
-                    window.location.reload();
+                    // Force a hard reload to get the new version
+                    window.location.reload(true);
                 }
             });
 
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
-                        // Check for updates periodically
+                        // Check for updates immediately on load
+                        registration.update();
+
+                        // Check for updates periodically (every 30 seconds)
                         setInterval(() => {
                             registration.update();
-                        }, 60000); // Check every minute
+                        }, 30000);
 
                         // Handle service worker updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
 
                             newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New service worker is ready, tell it to take over immediately
-                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                    
-                                    // Optional: Show a toast notification to the user
-                                    if (window.showToast) {
-                                        showToast('Updating to latest version...', 'info');
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // New service worker is ready, tell it to take over immediately
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        
+                                        // Show a toast notification to the user
+                                        if (window.showToast) {
+                                            showToast('New version available! Updating...', 'info');
+                                        }
                                     }
                                 }
                             });
@@ -1341,6 +1347,10 @@
 
                 // Listen for messages from service worker
                 navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'NEW_VERSION_ACTIVATED') {
+                        // The controllerchange event will trigger the reload
+                    }
+                    
                     if (event.data && event.data.type === 'CACHE_CLEARED') {
                         if (window.showToast) {
                             showToast('Cache cleared successfully', 'success');
