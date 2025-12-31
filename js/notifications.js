@@ -6,9 +6,21 @@ class NotificationsManager {
     }
 
     async init() {
-        await this.loadNotifications();
+        // First, try to fetch fresh notifications from Google Sheets
+        const sheetsFetched = await this.fetchFromSheets();
+
+        if (sheetsFetched) {
+            // If sheets were fetched, merge with stored read status
+            await this.loadAndMergeStoredNotifications();
+            // Save merged notifications to database
+            await this.saveNotifications();
+        } else {
+            // If sheets fetch failed or not configured, load from database
+            await this.loadFromDatabase();
+        }
+
+        // Expire old notifications after loading
         await this.expireOldNotifications();
-        await this.fetchFromSheets();
         this.setupEventListeners();
         this.updateBadge();
     }
@@ -40,15 +52,54 @@ class NotificationsManager {
         }
     }
 
-    async loadNotifications() {
+    async loadAndMergeStoredNotifications() {
         try {
             const stored = await db.getSetting('notifications');
-            if (stored) {
-                this.notifications = stored;
+            if (stored && stored.length > 0) {
+                // Create a map of stored read statuses
+                const storedReadStatus = new Map();
+                stored.forEach(n => {
+                    storedReadStatus.set(n.id, n.read);
+                });
+
+                // Apply stored read status to current notifications
+                this.notifications = this.notifications.map(notif => {
+                    if (storedReadStatus.has(notif.id)) {
+                        const wasRead = storedReadStatus.get(notif.id);
+                        return {
+                            ...notif,
+                            read: wasRead
+                        };
+                    }
+                    return notif;
+                });
+
+                // Sort by date (newest first)
+                this.notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                this.calculateUnreadCount();
+            } else {
                 this.calculateUnreadCount();
             }
         } catch (error) {
-            console.error('Error loading notifications:', error);
+            console.error('Error loading stored notifications:', error);
+        }
+    }
+
+    async loadFromDatabase() {
+        try {
+            const stored = await db.getSetting('notifications');
+            if (stored && stored.length > 0) {
+                this.notifications = stored;
+                // Sort by date (newest first)
+                this.notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
+                this.calculateUnreadCount();
+            } else {
+                this.notifications = [];
+            }
+        } catch (error) {
+            console.error('Error loading notifications from DB:', error);
+            this.notifications = [];
         }
     }
 
@@ -73,6 +124,12 @@ class NotificationsManager {
             // Filter out notifications older than expiration date
             this.notifications = this.notifications.filter(notification => {
                 const notifDate = new Date(notification.date);
+
+                // If date is invalid, keep the notification (don't remove it)
+                if (isNaN(notifDate.getTime())) {
+                    return true; // Keep notification with invalid date
+                }
+
                 return notifDate >= expirationDate;
             });
 
@@ -91,7 +148,7 @@ class NotificationsManager {
         try {
             // Skip if URL not configured
             if (!this.sheetsUrl || this.sheetsUrl === 'YOUR_GOOGLE_SHEETS_JSON_URL_HERE') {
-                return;
+                return false;
             }
 
             const response = await fetch(this.sheetsUrl, { cache: "no-cache" });
@@ -105,16 +162,14 @@ class NotificationsManager {
 
             const data = JSON.parse(jsonText);
 
-            // Parse Google Sheets data
-            const newNotifications = this.parseSheetData(data);
-
-            // Merge with existing notifications (avoid duplicates)
-            this.mergeNotifications(newNotifications);
-
-            await this.saveNotifications();
+            // Parse Google Sheets data and set as current notifications
+            this.notifications = this.parseSheetData(data);
+            // Sort by date (newest first)
+            this.notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
+            return true;
         } catch (error) {
             // Silently fail - offline mode
-            console.error('Failed to fetch notifications:', error);
+            return false;
         }
     }
 
@@ -138,8 +193,9 @@ class NotificationsManager {
             const date = cells[2]?.f || cells[2]?.v || new Date().toISOString();
             const type = cells[3]?.v || 'info';
 
-            // Create unique ID from title + date
-            const id = `notif-${title.replace(/\s/g, '-').toLowerCase()}-${index}`;
+            // Create unique ID from title + message to ensure consistency
+            const idString = `${title}-${message}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const id = `notif-${idString.substring(0, 50)}`;
 
             notifications.push({
                 id,
@@ -152,27 +208,6 @@ class NotificationsManager {
         });
 
         return notifications;
-    }
-
-    mergeNotifications(newNotifications) {
-        // Create a map of existing notifications to preserve read status
-        const existingMap = new Map();
-        this.notifications.forEach(n => {
-            existingMap.set(n.id, n.read);
-        });
-
-        // Replace notifications with new ones from sheets
-        // This ensures deleted notifications from sheets are removed locally
-        this.notifications = newNotifications.map(newNotif => {
-            // Preserve read status if notification existed before
-            if (existingMap.has(newNotif.id)) {
-                newNotif.read = existingMap.get(newNotif.id);
-            }
-            return newNotif;
-        });
-
-        // Sort by date (newest first)
-        this.notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
 
     calculateUnreadCount() {
