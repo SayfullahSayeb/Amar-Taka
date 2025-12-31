@@ -12,7 +12,8 @@
     <title>Amar Taka</title>
 
     <!-- Version Configuration (Load First) -->
-    <script src="js/version.js"></script>
+    <!-- Version Configuration (Load First) -->
+    <script>document.write('<script src="js/version.js?v=' + new Date().getTime() + '"><\/script>');</script>
 
     <!-- Styles with Cache Busting -->
     <script>document.write('<link rel="stylesheet" href="css/styles.css?v=' + APP_VERSION + '">');</script>

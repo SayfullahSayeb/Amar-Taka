@@ -26,6 +26,16 @@ class AutoUpdateManager {
         // Listen for service worker updates
         this.setupServiceWorkerListener();
 
+        // Listen for messages from Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'NEW_VERSION_ACTIVATED') {
+                    console.log('New version activated in SW, reloading...');
+                    this.autoReload();
+                }
+            });
+        }
+
         // Start periodic version check
         this.startPeriodicCheck();
 
