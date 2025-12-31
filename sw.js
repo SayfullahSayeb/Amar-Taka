@@ -7,42 +7,43 @@ const DATA_CACHE_NAME = `amar-taka-data-v${APP_VERSION}`;
 
 // Assets to cache on install
 const STATIC_ASSETS = [
-    '/',
-    '/manifest.json',
+    './',
+    './index.html',
+    './manifest.json',
 
     // CSS files
-    '/css/styles.css',
-    '/css/bk.css',
-    '/css/onboarding.css',
+    './css/styles.css',
+    './css/bk.css',
+    './css/onboarding.css',
 
     // JavaScript files
-    '/js/version.js',
-    '/js/app.js',
-    '/js/db.js',
-    '/js/home.js',
-    '/js/transactions.js',
-    '/js/analysis.js',
-    '/js/settings.js',
-    '/js/budget.js',
-    '/js/categories.js',
-    '/js/categoryform.js',
-    '/js/goals.js',
-    '/js/profiles.js',
-    '/js/applock.js',
-    '/js/demomode.js',
-    '/js/onboarding.js',
-    '/js/export.js',
-    '/js/lang.js',
-    '/js/utils.js',
-    '/js/notifications.js',
-    '/js/modal-scroll-lock.js',
+    './js/version.js',
+    './js/app.js',
+    './js/db.js',
+    './js/home.js',
+    './js/transactions.js',
+    './js/analysis.js',
+    './js/settings.js',
+    './js/budget.js',
+    './js/categories.js',
+    './js/categoryform.js',
+    './js/goals.js',
+    './js/profiles.js',
+    './js/applock.js',
+    './js/demomode.js',
+    './js/onboarding.js',
+    './js/export.js',
+    './js/lang.js',
+    './js/utils.js',
+    './js/notifications.js',
+    './js/modal-scroll-lock.js',
 
     // Images
-    '/image/icon.png',
-    '/image/favicon.png',
+    './image/icon.png',
+    './image/favicon.png',
 
     // Pages
-    '/pages/onboarding.html',
+    './pages/onboarding.html',
 
     // Fonts (if any external fonts are used, add them here)
 ];
@@ -131,7 +132,7 @@ self.addEventListener('fetch', (event) => {
             .catch((error) => {
                 // Return offline fallback page if available
                 if (request.destination === 'document') {
-                    return caches.match('/index.html');
+                    return caches.match('./index.html');
                 }
             })
     );
