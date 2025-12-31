@@ -80,7 +80,6 @@ class NotificationsManager {
 
             // Save if any notifications were expired
             if (expiredCount > 0) {
-                console.log(`Expired ${expiredCount} old notification(s)`);
                 await this.saveNotifications();
             }
         } catch (error) {

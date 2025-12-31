@@ -43,7 +43,6 @@ class OnboardingManager {
             }
         } catch (error) {
             // If error checking database, assume onboarding not completed
-            console.log('Onboarding not completed, continuing...');
         }
     }
 

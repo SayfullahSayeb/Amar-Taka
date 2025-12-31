@@ -36,6 +36,7 @@ const STATIC_ASSETS = [
     './js/lang.js',
     './js/utils.js',
     './js/notifications.js',
+    './js/navigation.js',
     './js/modal-scroll-lock.js',
 
     // Images

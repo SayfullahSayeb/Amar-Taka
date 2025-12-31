@@ -185,17 +185,11 @@ const AppLock = {
     },
 
     processPinInput() {
-        console.log('Processing PIN input...', {
-            isChangingPin: this.isChangingPin,
-            isSettingPin: this.isSettingPin,
-            tempPin: this.tempPin,
-            currentPinLength: this.currentPin.length
-        });
 
         if (this.isChangingPin) {
             if (!this.tempPin) {
                 // First step: verify current PIN
-                console.log('Step 1: Verifying current PIN');
+
                 if (this.currentPin === this.pin) {
                     this.tempPin = 'verified';
                     this.currentPin = '';
@@ -204,16 +198,16 @@ const AppLock = {
                         instruction.textContent = 'Enter new 4-digit PIN';
                     }
                     this.clearPinDots('pin-dot');
-                    console.log('Current PIN verified');
+
                 } else {
-                    console.log('Incorrect current PIN');
+
                     this.showToastMessage('Incorrect PIN');
                     this.currentPin = '';
                     this.clearPinDots('pin-dot');
                 }
             } else if (this.tempPin === 'verified') {
                 // Second step: enter new PIN
-                console.log('Step 2: Setting new PIN');
+
                 this.tempPin = this.currentPin;
                 this.currentPin = '';
                 const instruction = document.getElementById('pin-instruction');
@@ -221,22 +215,18 @@ const AppLock = {
                     instruction.textContent = 'Confirm new PIN';
                 }
                 this.clearPinDots('pin-dot');
-                console.log('New PIN set, waiting for confirmation');
+
             } else {
                 // Third step: confirm new PIN
-                console.log('Step 3: Confirming new PIN', {
-                    currentPin: this.currentPin,
-                    tempPin: this.tempPin,
-                    match: this.currentPin === this.tempPin
-                });
+
                 if (this.currentPin === this.tempPin) {
                     this.pin = this.currentPin;
                     this.saveSettings(true);
                     this.showToastMessage('PIN changed successfully');
                     this.closePinModal();
-                    console.log('PIN changed successfully');
+
                 } else {
-                    console.log('PINs do not match');
+
                     this.showToastMessage('PINs do not match. Try again.');
                     this.tempPin = 'verified';
                     this.currentPin = '';
@@ -250,7 +240,7 @@ const AppLock = {
         } else if (this.isSettingPin) {
             if (!this.tempPin) {
                 // First entry
-                console.log('Setting PIN - First entry');
+
                 this.tempPin = this.currentPin;
                 this.currentPin = '';
                 const instruction = document.getElementById('pin-instruction');
@@ -258,23 +248,19 @@ const AppLock = {
                     instruction.textContent = 'Confirm your PIN';
                 }
                 this.clearPinDots('pin-dot');
-                console.log('PIN entered, waiting for confirmation');
+
             } else {
                 // Confirmation
-                console.log('Setting PIN - Confirmation', {
-                    currentPin: this.currentPin,
-                    tempPin: this.tempPin,
-                    match: this.currentPin === this.tempPin
-                });
+
                 if (this.currentPin === this.tempPin) {
                     this.pin = this.currentPin;
                     this.saveSettings(true);
                     this.updatePinStatus(true);
                     this.showToastMessage('PIN set successfully');
                     this.closePinModal();
-                    console.log('PIN set successfully');
+
                 } else {
-                    console.log('PINs do not match');
+
                     this.showToastMessage('PINs do not match. Try again.');
                     this.tempPin = null;
                     this.currentPin = '';
@@ -371,7 +357,7 @@ const AppLock = {
             showToast(message);
         } else {
             // Fallback: use alert or console
-            console.log('Toast:', message);
+
             // Simple toast implementation
             const toast = document.getElementById('toast');
             if (toast) {
@@ -407,7 +393,7 @@ const AppLock = {
             this.unlockApp();
             this.showToastMessage('PIN reset successfully. App lock disabled.');
 
-            console.log('PIN reset by user');
+
         }
     }
 };

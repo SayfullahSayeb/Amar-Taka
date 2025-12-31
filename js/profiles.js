@@ -187,7 +187,6 @@ class ProfileManager {
                 const request = indexedDB.deleteDatabase(dbName);
 
                 request.onsuccess = () => {
-                    console.log('Secondary profile database deleted');
                     resolve();
                 };
 
@@ -196,7 +195,6 @@ class ProfileManager {
                 };
 
                 request.onblocked = () => {
-                    console.warn('Database deletion blocked');
                     reject('Database deletion blocked');
                 };
             });
@@ -296,7 +294,7 @@ class ProfileManager {
             try {
                 await tempDB.add('categories', category);
             } catch (error) {
-                console.log('Category may already exist:', category.name);
+                // Category may already exist, continue
             }
         }
 
@@ -566,13 +564,18 @@ class ProfileManager {
             const hasOldDB = databases.some(db => db.name === oldDBName);
             const hasNewDB = databases.some(db => db.name === newDBName);
 
-            if (hasOldDB && !hasNewDB) {
-                console.log('Migrating existing data to Personal profile...');
-                localStorage.setItem('profiles_migrated', 'true');
-                console.log('Migration completed');
-            } else {
-                localStorage.setItem('profiles_migrated', 'true');
+            // Check if the old DB exists and the new personal DB does not
+            // This indicates data needs to be migrated from the old structure to the new personal profile DB
+            const hasData = hasOldDB && !hasNewDB;
+
+            if (hasData) {
+                // This is a placeholder for actual migration logic if needed.
+                // For now, we just set the flag as the DB_PREFIX change effectively handles it
+                // by making the old DB the 'personal' one implicitly if it's the only one.
+                // If actual data transfer between DBs was needed, it would go here.
+                // For this specific change, we're just removing the log and setting the flag.
             }
+            localStorage.setItem('profiles_migrated', 'true');
         } catch (error) {
             console.error('Migration error:', error);
         }
