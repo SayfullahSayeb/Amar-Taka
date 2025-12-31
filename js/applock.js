@@ -82,23 +82,45 @@ const AppLock = {
         });
     },
 
-    handleToggle(e) {
+    async handleToggle(e) {
         const isEnabled = e.target.checked;
 
         if (isEnabled) {
             // Enable lock - need to set PIN if not already set
             if (!this.pin) {
-                this.openSetPinModal();
+                // Show informative popup for first-time setup
+                const proceed = await Utils.confirm(
+                    'You are about to set up App Lock. You will create a 4-digit PIN to secure your app. Make sure to remember it!',
+                    'Set Up App Lock',
+                    'Continue'
+                );
+
+                if (proceed) {
+                    this.openSetPinModal();
+                } else {
+                    // User cancelled, turn toggle back off
+                    e.target.checked = false;
+                }
             } else {
-                this.saveSettings(true);
-                this.updatePinStatus(true);
-                showToast('App lock enabled');
+                // PIN already exists, ask if they want to use existing or change it
+                const options = await this.showPinOptionsDialog();
+
+                if (options === 'use-existing') {
+                    this.saveSettings(true);
+                    this.updatePinStatus(true);
+                    Utils.showToast('App lock enabled with existing PIN');
+                } else if (options === 'change-pin') {
+                    this.openChangePinModal();
+                } else {
+                    // User cancelled
+                    e.target.checked = false;
+                }
             }
         } else {
             // Disable lock
             this.saveSettings(false);
             this.updatePinStatus(false);
-            showToast('App lock disabled');
+            Utils.showToast('App lock disabled');
         }
     },
 
@@ -155,8 +177,16 @@ const AppLock = {
             modal.classList.remove('active');
         }
 
-        // Reset toggle if PIN was not set
-        if (!this.pin) {
+        // If PIN was successfully set/changed, ensure app lock is enabled
+        if (this.pin) {
+            const toggle = document.getElementById('app-lock-toggle');
+            if (toggle && !toggle.checked) {
+                toggle.checked = true;
+            }
+            this.saveSettings(true);
+            this.updatePinStatus(true);
+        } else {
+            // Reset toggle if PIN was not set
             const toggle = document.getElementById('app-lock-toggle');
             if (toggle) {
                 toggle.checked = false;
@@ -392,9 +422,70 @@ const AppLock = {
             // Unlock and close
             this.unlockApp();
             this.showToastMessage('PIN reset successfully. App lock disabled.');
-
-
         }
+    },
+
+    async showPinOptionsDialog() {
+        return new Promise((resolve) => {
+            // Create custom dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'modal active';
+            dialog.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>App Lock Options</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 20px; color: var(--text-secondary);">You already have a PIN set. What would you like to do?</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button id="use-existing-pin-btn" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-lock"></i> Use Existing PIN
+                            </button>
+                            <button id="change-pin-btn-dialog" class="btn btn-secondary" style="width: 100%;">
+                                <i class="fas fa-key"></i> Change PIN
+                            </button>
+                            <button id="cancel-pin-dialog" class="btn btn-outline" style="width: 100%;">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(dialog);
+
+            // Add event listeners
+            const useExistingBtn = dialog.querySelector('#use-existing-pin-btn');
+            const changePinBtn = dialog.querySelector('#change-pin-btn-dialog');
+            const cancelBtn = dialog.querySelector('#cancel-pin-dialog');
+
+            const cleanup = () => {
+                dialog.remove();
+            };
+
+            useExistingBtn.addEventListener('click', () => {
+                cleanup();
+                resolve('use-existing');
+            });
+
+            changePinBtn.addEventListener('click', () => {
+                cleanup();
+                resolve('change-pin');
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                cleanup();
+                resolve('cancel');
+            });
+
+            // Close on backdrop click
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    cleanup();
+                    resolve('cancel');
+                }
+            });
+        });
     }
 };
 
