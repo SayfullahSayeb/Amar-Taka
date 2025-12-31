@@ -4378,3 +4378,47 @@ body.modal-open {
 .demo-mode-active .demo-mode-hide {
     display: none !important;
 }
+
+/* ===================================
+   Auto Update Loading Overlay
+   =================================== */
+
+#update-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.update-loading-content {
+    text-align: center;
+    color: white;
+}
+
+.update-spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.update-loading-content p {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 500;
+}
