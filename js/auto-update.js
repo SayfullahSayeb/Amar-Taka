@@ -138,16 +138,7 @@ class AutoUpdateManager {
             });
         }
 
-        // Unregister service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                registrations.forEach(registration => {
-                    registration.unregister();
-                });
-            });
-        }
-
-        // Force reload with cache bust
+        // Force reload with cache bust (service worker will re-cache on reload)
         window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
     }
 

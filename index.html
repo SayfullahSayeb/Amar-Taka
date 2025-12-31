@@ -1301,7 +1301,7 @@
         // Register Service Worker for PWA functionality
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
                         // Check for updates periodically
                         setInterval(() => {
@@ -1322,8 +1322,8 @@
                             });
                         });
                     })
-                    .catch(() => {
-                        // Silently fail for file:// protocol
+                    .catch((error) => {
+                        // Service Worker registration failed
                     });
 
                 // Listen for messages from service worker
