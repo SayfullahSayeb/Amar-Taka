@@ -1300,6 +1300,16 @@
     <script>
         // Register Service Worker for PWA functionality
         if ('serviceWorker' in navigator) {
+            let refreshing = false;
+
+            // Detect controller change and reload page
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
+            });
+
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
@@ -1314,9 +1324,12 @@
 
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New service worker is ready, tell it to take over immediately
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                    
                                     // Optional: Show a toast notification to the user
                                     if (window.showToast) {
-                                        showToast('New version available! Refresh to update.', 'info');
+                                        showToast('Updating to latest version...', 'info');
                                     }
                                 }
                             });

@@ -85,7 +85,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - serve from network first for app files, cache for assets
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -118,13 +118,48 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Handle static assets with cache-first strategy
+    // Network-first strategy for HTML, CSS, and JS files to ensure fresh content
+    const isAppFile = request.url.match(/\.(html|css|js)$/i) ||
+        request.url.endsWith('/') ||
+        request.url.includes('index.html');
+
+    if (isAppFile) {
+        event.respondWith(
+            fetch(request)
+                .then((response) => {
+                    // Check if valid response
+                    if (!response || response.status !== 200 || response.type === 'error') {
+                        return caches.match(request).then(cached => cached || response);
+                    }
+
+                    // Clone and cache the response
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            cache.put(request, responseClone);
+                        });
+
+                    return response;
+                })
+                .catch(() => {
+                    // If network fails, serve from cache
+                    return caches.match(request).then(cached => {
+                        if (cached) return cached;
+                        // Fallback to index.html for navigation requests
+                        if (request.destination === 'document') {
+                            return caches.match('./index.html');
+                        }
+                    });
+                })
+        );
+        return;
+    }
+
+    // Cache-first strategy for images and other static assets
     event.respondWith(
         caches.match(request)
             .then((cachedResponse) => {
                 if (cachedResponse) {
-                    // Return cached version and update cache in background
-                    fetchAndCache(request);
                     return cachedResponse;
                 }
 
