@@ -164,7 +164,7 @@ const translations = {
         spent: 'Spent',
 
         // Goals Page
-        savingsGoals: 'Savings Goals',
+        savingsGoals: 'Savings',
         addNewGoal: 'Add New Goal',
         noGoalsYet: 'No savings goals yet',
         createFirstGoal: 'Create your first goal to start saving!',
@@ -380,7 +380,7 @@ const translations = {
         spent: 'খরচ হয়েছে',
 
         // Goals Page
-        savingsGoals: 'সঞ্চয়ের লক্ষ্য',
+        savingsGoals: 'সঞ্চয়',
         addNewGoal: 'নতুন লক্ষ্য যোগ করুন',
         noGoalsYet: 'এখনো কোনো সঞ্চয়ের লক্ষ্য নেই',
         createFirstGoal: 'সঞ্চয় শুরু করতে প্রথম লক্ষ্য তৈরি করুন!',
