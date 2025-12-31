@@ -1,5 +1,3 @@
-// Service Worker for Amar Taka PWA
-// Import version from version.js
 importScripts('js/version.js');
 
 const CACHE_NAME = `amar-taka-v${APP_VERSION}`;
@@ -46,7 +44,6 @@ const STATIC_ASSETS = [
     // Pages
     './pages/onboarding.html',
 
-    // Fonts (if any external fonts are used, add them here)
 ];
 
 // Install event - cache static assets
