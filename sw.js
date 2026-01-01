@@ -11,11 +11,11 @@ const STATIC_ASSETS = [
 
     // CSS files
     './css/styles.css',
-    './css/bk.css',
     './css/onboarding.css',
 
     // JavaScript files
     './js/version.js',
+    './js/loading.js',
     './js/app.js',
     './js/db.js',
     './js/home.js',
@@ -24,7 +24,6 @@ const STATIC_ASSETS = [
     './js/settings.js',
     './js/budget.js',
     './js/categories.js',
-    './js/categoryform.js',
     './js/goals.js',
     './js/profiles.js',
     './js/applock.js',
@@ -35,11 +34,11 @@ const STATIC_ASSETS = [
     './js/utils.js',
     './js/notifications.js',
     './js/navigation.js',
-    './js/modal-scroll-lock.js',
 
     // Images
     './image/icon.png',
     './image/favicon.png',
+    './image/logo.png',
 
     // Pages
     './pages/onboarding.html',
