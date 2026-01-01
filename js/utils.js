@@ -281,25 +281,7 @@ class Utils {
         return insights.slice(0, 5);
     }
 
-    // Export to CSV
-    static exportToCSV(transactions) {
-        const headers = ['Date', 'Type', 'Category', 'Amount', 'Payment Method', 'Note'];
-        const rows = transactions.map(t => [
-            this.formatDate(t.date),
-            t.type,
-            t.category,
-            t.amount,
-            t.paymentMethod,
-            t.note || ''
-        ]);
 
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-        ].join('\n');
-
-        return csvContent;
-    }
 
     // Download file
     static downloadFile(content, filename, type = 'text/plain') {

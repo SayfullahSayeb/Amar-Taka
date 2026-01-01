@@ -170,19 +170,7 @@ class ExportManager {
         }
     }
 
-    async exportCSV() {
-        try {
-            const transactions = await db.getAll('transactions');
-            const csvContent = Utils.exportToCSV(transactions);
-            const filename = `finance-tracker-transactions-${new Date().toISOString().split('T')[0]}.csv`;
 
-            Utils.downloadFile(csvContent, filename, 'text/csv');
-            Utils.showToast(lang.translate('dataExported'));
-        } catch (error) {
-            console.error('Export error:', error);
-            Utils.showToast('Error exporting data');
-        }
-    }
 
     async handleImport(event) {
         const file = event.target.files[0];

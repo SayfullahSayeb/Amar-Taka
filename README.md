@@ -14,7 +14,7 @@ Amar Taka is built with privacy as the foundation:
 - **Zero Tracking** - No analytics, no third-party scripts, no data collection whatsoever
 - **No Account Required** - Start tracking immediately without signing up or sharing personal information
 - **Works Completely Offline** - No internet connection needed, no cloud dependency
-- **You're in Control** - Export your data anytime in JSON or CSV format
+- **You're in Control** - Export your data anytime in JSON format
 
 **We don't collect, store, or have access to any of your financial information. Period.**
 
@@ -66,7 +66,6 @@ Amar Taka is built with privacy as the foundation:
 ### Complete Data Control
 **Your data, your way**
 - **Export to JSON** - Complete backup with all your data
-- **Export to CSV** - Open in Excel or Google Sheets for analysis
 - **Import Backup** - Restore your data on any device instantly
 - **Demo Mode** - Try the app safely with sample data
 - **Notifications** - Get smart reminders and insights
@@ -114,11 +113,7 @@ For the best experience, install Amar Taka:
 
 ## Perfect For
 
-- **Privacy-Conscious Users** - Keep financial data 100% private
-- **Students** - Track allowances and manage expenses
-- **Professionals** - Monitor personal finances effectively
-- **Freelancers** - Separate personal and business expenses
-- **Small Businesses** - Track business transactions without costly software
+
 - **Anyone** - Who wants simple, effective expense tracking without privacy concerns
 
 ---
