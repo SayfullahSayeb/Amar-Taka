@@ -41,7 +41,7 @@ const STATIC_ASSETS = [
     './image/logo.png',
 
     // Pages
-    './pages/onboarding.html',
+    'pages/onboarding.html',
 
 ];
 
