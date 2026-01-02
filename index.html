@@ -462,6 +462,25 @@
             </div>
         </div>
 
+        <!-- PWA Install Banner -->
+        <div id="pwa-install-banner" class="pwa-install-banner" style="display: none;">
+            <div class="pwa-banner-content">
+                <div class="pwa-banner-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="pwa-banner-text">
+                    <strong>Install App</strong>
+                    <span>Get a better experience with our PWA!</span>
+                </div>
+                <button class="pwa-banner-install" id="pwa-install-btn">
+                    Install
+                </button>
+                <button class="pwa-banner-close" id="pwa-banner-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-page="home">
@@ -1345,6 +1364,7 @@
             'js/profiles.js',
             'js/goals.js',
             'js/notifications.js',
+            'js/pwa-banner.js',
             'js/navigation.js',
             'js/app.js'
         ];
