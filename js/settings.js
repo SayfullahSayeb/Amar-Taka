@@ -3,7 +3,7 @@ class SettingsManager {
         await this.loadSettings();
         this.setupEventListeners();
         this.initCustomSelects();
-        this.setupOnlineListener(); 
+        this.setupOnlineListener();
     }
 
     async loadSettings() {
@@ -205,11 +205,8 @@ class SettingsManager {
                         text: "Track your finance offline with Amar Taka",
                         url: window.location.origin
                     });
-                } catch (error) {
-                    // User cancelled the share or an error occurred
-                    if (error.name !== 'AbortError') {
-                        console.error('Share error:', error);
-                    }
+                } catch (err) {
+                    console.log("Share cancelled");
                 }
             } else {
                 alert("Sharing not supported on this browser");
