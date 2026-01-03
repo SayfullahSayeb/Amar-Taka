@@ -14,10 +14,9 @@ function checkInstallStatus() {
     // Check if running in standalone mode (installed)
     if (window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true) {
-        // If running as installed PWA, redirect to home page
-        // This prevents the PWA from opening to the install page
-        window.location.replace('../../index.html');
-        return;
+        isInstalled = true;
+        updateInstallButtons('Already Installed', true);
+        updateInstallNote('App is already installed on your device!');
     }
 }
 
@@ -129,13 +128,12 @@ window.addEventListener('appinstalled', () => {
     console.log('PWA was installed');
     isInstalled = true;
     updateInstallButtons('Installed Successfully!', true);
-    updateInstallNote('App installed successfully! You can now launch it from your home screen or app drawer.');
+    updateInstallNote('App installed successfully! You can now launch it from your home screen.');
 
-    // Show success message and offer to open in new window
+    // Show success message
     setTimeout(() => {
-        if (confirm('App installed successfully! Would you like to open it now?\n\n(It will open in a new window)')) {
-            // Open the app in a new window, keeping this tab open
-            window.open('../../index.html', '_blank');
+        if (confirm('App installed successfully! Would you like to open it now?')) {
+            window.location.href = '../../index.html';
         }
     }, 500);
 });
