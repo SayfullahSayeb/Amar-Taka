@@ -1,12 +1,27 @@
 // PWA Install Page JavaScript
 let deferredPrompt;
 let isInstalled = false;
+let installPromptFired = false;
 
 // Check if app is already installed
 window.addEventListener('DOMContentLoaded', () => {
     checkInstallStatus();
     initializeScreenshotCarousel();
     setupInstallButtons();
+
+    // Wait a bit to see if beforeinstallprompt fires
+    // If it doesn't fire within 2 seconds, app is likely installed
+    setTimeout(() => {
+        if (!installPromptFired && !isInstalled) {
+            // Check if we previously recorded an installation
+            const wasInstalled = localStorage.getItem('pwa_installed');
+            if (wasInstalled === 'true') {
+                isInstalled = true;
+                updateInstallButtons('Open App', false);
+                updateInstallNote('App is already installed! Click the button to open it.');
+            }
+        }
+    }, 2000);
 });
 
 // Check if running as installed PWA
@@ -15,6 +30,8 @@ function checkInstallStatus() {
     if (window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true) {
         isInstalled = true;
+        // Mark as installed in localStorage
+        localStorage.setItem('pwa_installed', 'true');
         updateInstallButtons('Open App', false);
         updateInstallNote('App is already installed! Click the button to open it.');
         return;
@@ -26,6 +43,7 @@ function checkInstallStatus() {
         navigator.getInstalledRelatedApps().then((relatedApps) => {
             if (relatedApps.length > 0) {
                 isInstalled = true;
+                localStorage.setItem('pwa_installed', 'true');
                 updateInstallButtons('Open App', false);
                 updateInstallNote('App is already installed! Click the button to open it.');
             }
@@ -41,6 +59,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     // Stash the event so it can be triggered later
     deferredPrompt = e;
+    installPromptFired = true;
     // Update UI to show install button is available
     updateInstallNote('Click the button above to install Amar Taka on your device');
 });
@@ -188,6 +207,8 @@ function detectPlatform() {
 window.addEventListener('appinstalled', () => {
     console.log('PWA was installed');
     isInstalled = true;
+    // Mark as installed in localStorage
+    localStorage.setItem('pwa_installed', 'true');
     updateInstallButtons('Installed Successfully!', true);
     updateInstallNote('App installed successfully! You can now launch it from your home screen.');
 
