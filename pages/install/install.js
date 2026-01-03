@@ -1,27 +1,12 @@
 // PWA Install Page JavaScript
 let deferredPrompt;
 let isInstalled = false;
-let installPromptFired = false;
 
 // Check if app is already installed
 window.addEventListener('DOMContentLoaded', () => {
     checkInstallStatus();
     initializeScreenshotCarousel();
     setupInstallButtons();
-
-    // Wait a bit to see if beforeinstallprompt fires
-    // If it doesn't fire within 2 seconds, app is likely installed
-    setTimeout(() => {
-        if (!installPromptFired && !isInstalled) {
-            // Check if we previously recorded an installation
-            const wasInstalled = localStorage.getItem('pwa_installed');
-            if (wasInstalled === 'true') {
-                isInstalled = true;
-                updateInstallButtons('Open App', false);
-                updateInstallNote('App is already installed! Click the button to open it.');
-            }
-        }
-    }, 2000);
 });
 
 // Check if running as installed PWA
@@ -30,26 +15,8 @@ function checkInstallStatus() {
     if (window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true) {
         isInstalled = true;
-        // Mark as installed in localStorage
-        localStorage.setItem('pwa_installed', 'true');
-        updateInstallButtons('Open App', false);
-        updateInstallNote('App is already installed! Click the button to open it.');
-        return;
-    }
-
-    // Additional check: Try to detect if app was previously installed
-    // by checking if we're in a browser context but the app might be installed
-    if ('getInstalledRelatedApps' in navigator) {
-        navigator.getInstalledRelatedApps().then((relatedApps) => {
-            if (relatedApps.length > 0) {
-                isInstalled = true;
-                localStorage.setItem('pwa_installed', 'true');
-                updateInstallButtons('Open App', false);
-                updateInstallNote('App is already installed! Click the button to open it.');
-            }
-        }).catch(err => {
-            console.log('Could not check for installed apps:', err);
-        });
+        updateInstallButtons('Already Installed', true);
+        updateInstallNote('App is already installed on your device!');
     }
 }
 
@@ -59,7 +26,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     // Stash the event so it can be triggered later
     deferredPrompt = e;
-    installPromptFired = true;
     // Update UI to show install button is available
     updateInstallNote('Click the button above to install Amar Taka on your device');
 });
@@ -85,9 +51,7 @@ function setupInstallButtons() {
 
 // Handle install button click
 async function handleInstallClick() {
-    // If already installed, try to open the PWA app
     if (isInstalled) {
-        openInstalledApp();
         return;
     }
 
@@ -114,30 +78,6 @@ async function handleInstallClick() {
     deferredPrompt = null;
 }
 
-// Function to open the installed PWA app
-function openInstalledApp() {
-    // Get the base URL of the app
-    const baseUrl = window.location.origin;
-    const appUrl = baseUrl + '/index.html';
-
-    // Method 1: Try using custom protocol handler
-    try {
-        const protocolUrl = 'web+amartaka://open';
-        window.location.href = protocolUrl;
-
-        // Fallback after a short delay if protocol doesn't work
-        setTimeout(() => {
-            // Method 2: Try opening with scope parameter to hint it should open in PWA
-            const pwaUrl = appUrl + '?standalone=true';
-            window.location.href = pwaUrl;
-        }, 500);
-    } catch (e) {
-        // Method 3: Direct navigation fallback
-        window.location.href = appUrl;
-    }
-}
-
-
 // Update install button states
 function updateInstallButtons(text, disabled = false) {
     const buttons = [
@@ -154,56 +94,12 @@ function updateInstallButtons(text, disabled = false) {
         }
 
         if (btnElement) {
-            // Remove existing state classes
-            btnElement.classList.remove('installed', 'open-app');
-
-            // Update icon based on state
-            const iconElement = btnElement.querySelector('.btn-icon');
-            if (iconElement && text === 'Open App') {
-                // Change to "external link" icon for Open App
-                iconElement.innerHTML = `
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 0 0 1-2-2V8a2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                `;
-            } else if (iconElement && text !== 'Open App') {
-                // Reset to download icon
-                iconElement.innerHTML = `
-                    <path d="M21 15v4a2 0 0 1-2 2H5a2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                `;
-            }
-
             if (disabled) {
                 btnElement.classList.add('installed');
                 btnElement.style.cursor = 'default';
-            } else if (text === 'Open App') {
-                // Add special styling for "Open App" button
-                btnElement.classList.add('open-app');
-                btnElement.style.cursor = 'pointer';
-            } else {
-                btnElement.style.cursor = 'pointer';
             }
         }
     });
-
-    // Also update the navbar button
-    const navInstallButton = document.getElementById('navInstallButton');
-    if (navInstallButton) {
-        navInstallButton.textContent = text;
-        navInstallButton.classList.remove('installed', 'open-app');
-
-        if (disabled) {
-            navInstallButton.classList.add('installed');
-            navInstallButton.style.cursor = 'default';
-        } else if (text === 'Open App') {
-            navInstallButton.classList.add('open-app');
-            navInstallButton.style.cursor = 'pointer';
-        } else {
-            navInstallButton.style.cursor = 'pointer';
-        }
-    }
 }
 
 // Update install note
@@ -231,8 +127,6 @@ function detectPlatform() {
 window.addEventListener('appinstalled', () => {
     console.log('PWA was installed');
     isInstalled = true;
-    // Mark as installed in localStorage
-    localStorage.setItem('pwa_installed', 'true');
     updateInstallButtons('Installed Successfully!', true);
     updateInstallNote('App installed successfully! You can now launch it from your home screen.');
 
