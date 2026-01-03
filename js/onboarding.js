@@ -1,7 +1,7 @@
 class OnboardingManager {
     constructor() {
         this.currentScreen = 1;
-        this.totalScreens = 5; 
+        this.totalScreens = 5;
         this.data = {
             userName: '',
             monthlyBudget: null,
@@ -233,8 +233,13 @@ class OnboardingManager {
         }
 
         try {
-            // Initialize database first
-            await db.init();
+            // CRITICAL FIX: Initialize database with profile-specific name
+            // The main app uses 'FinanceTrackerDB_personal' for the personal profile
+            // We need to use the same database name here to ensure data persistence
+            const DB_PREFIX = 'FinanceTrackerDB_';
+            const profileDBName = DB_PREFIX + 'personal';
+
+            await db.init(profileDBName);
 
             // Save all settings to database
             if (this.data.userName) {

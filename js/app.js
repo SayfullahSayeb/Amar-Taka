@@ -14,6 +14,12 @@ class App {
             // Initialize database with profile-specific name
             await db.init();
 
+            // Initialize AppLock after database is ready
+            // This ensures PIN settings from onboarding can be loaded
+            if (typeof AppLock !== 'undefined') {
+                await AppLock.init();
+            }
+
             // Apply saved theme immediately to prevent browser override
             await this.initializeTheme();
 

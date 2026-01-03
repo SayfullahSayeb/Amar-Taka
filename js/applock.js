@@ -6,13 +6,36 @@ const AppLock = {
     isSettingPin: false,
     isChangingPin: false,
 
-    init() {
-        this.loadSettings();
+    async init() {
+        await this.loadSettings();
         this.setupEventListeners();
         this.checkLockStatus();
     },
 
-    loadSettings() {
+    async loadSettings() {
+        // First check IndexedDB (where onboarding saves the PIN)
+        try {
+            const dbEnabled = await db.getSetting('appLockEnabled');
+            const dbPIN = await db.getSetting('appLockPIN');
+
+            if (dbEnabled && dbPIN) {
+                // PIN was set during onboarding, migrate to localStorage
+                this.pin = dbPIN;
+                this.saveSettings(dbEnabled);
+
+                // Update toggle state
+                const toggle = document.getElementById('app-lock-toggle');
+                if (toggle) {
+                    toggle.checked = dbEnabled;
+                    this.updatePinStatus(dbEnabled);
+                }
+                return;
+            }
+        } catch (error) {
+            // Database might not be initialized yet, fall back to localStorage
+        }
+
+        // Fall back to localStorage
         const settings = JSON.parse(localStorage.getItem('appLockSettings') || '{}');
         this.pin = settings.pin || null;
         const isEnabled = settings.enabled || false;
@@ -485,7 +508,5 @@ const AppLock = {
     }
 };
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    AppLock.init();
-});
+// Note: AppLock is now initialized by app.js after the database is ready
+// This prevents race conditions where AppLock tries to load settings before DB is initialized
