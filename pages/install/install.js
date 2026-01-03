@@ -130,6 +130,14 @@ window.addEventListener('appinstalled', () => {
     isInstalled = true;
     updateInstallButtons('Installed Successfully!', true);
     updateInstallNote('App installed successfully! You can now launch it from your home screen or app drawer.');
+
+    // Show success message and offer to open in new window
+    setTimeout(() => {
+        if (confirm('App installed successfully! Would you like to open it now?\n\n(It will open in a new window)')) {
+            // Open the app in a new window, keeping this tab open
+            window.open('../../index.html', '_blank');
+        }
+    }, 500);
 });
 
 // Screenshot Carousel
