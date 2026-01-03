@@ -6,14 +6,13 @@ let isInstalled = false;
 window.addEventListener('DOMContentLoaded', () => {
     checkInstallStatus();
     initializeScreenshotCarousel();
-    initializePlatformTabs();
     setupInstallButtons();
 });
 
 // Check if running as installed PWA
 function checkInstallStatus() {
     // Check if running in standalone mode (installed)
-    if (window.matchMedia('(display-mode: standalone)').matches || 
+    if (window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true) {
         isInstalled = true;
         updateInstallButtons('Already Installed', true);
@@ -35,6 +34,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 function setupInstallButtons() {
     const installButton = document.getElementById('installButton');
     const installButtonBottom = document.getElementById('installButtonBottom');
+    const navInstallButton = document.getElementById('navInstallButton');
 
     if (installButton) {
         installButton.addEventListener('click', handleInstallClick);
@@ -42,6 +42,10 @@ function setupInstallButtons() {
 
     if (installButtonBottom) {
         installButtonBottom.addEventListener('click', handleInstallClick);
+    }
+
+    if (navInstallButton) {
+        navInstallButton.addEventListener('click', handleInstallClick);
     }
 }
 
@@ -52,8 +56,8 @@ async function handleInstallClick() {
     }
 
     if (!deferredPrompt) {
-        // Show platform-specific instructions
-        showPlatformInstructions();
+        // No install prompt available
+        updateInstallNote('Installation is not available in this browser. Try using Chrome, Edge, or Safari.');
         return;
     }
 
@@ -106,36 +110,10 @@ function updateInstallNote(text) {
     }
 }
 
-// Show platform-specific instructions
-function showPlatformInstructions() {
-    const platform = detectPlatform();
-    const tabs = document.querySelectorAll('.tab-btn');
-    const panels = document.querySelectorAll('.platform-panel');
-
-    // Remove active class from all tabs and panels
-    tabs.forEach(tab => tab.classList.remove('active'));
-    panels.forEach(panel => panel.classList.remove('active'));
-
-    // Activate the correct tab and panel
-    const targetTab = document.querySelector(`[data-platform="${platform}"]`);
-    const targetPanel = document.querySelector(`.platform-panel[data-platform="${platform}"]`);
-
-    if (targetTab) targetTab.classList.add('active');
-    if (targetPanel) targetPanel.classList.add('active');
-
-    // Scroll to instructions
-    const instructionsSection = document.querySelector('.instructions');
-    if (instructionsSection) {
-        instructionsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    updateInstallNote(`Follow the ${platform} instructions below to install the app`);
-}
-
 // Detect user's platform
 function detectPlatform() {
     const userAgent = navigator.userAgent.toLowerCase();
-    
+
     if (/iphone|ipad|ipod/.test(userAgent)) {
         return 'ios';
     } else if (/android/.test(userAgent)) {
@@ -151,7 +129,7 @@ window.addEventListener('appinstalled', () => {
     isInstalled = true;
     updateInstallButtons('Installed Successfully!', true);
     updateInstallNote('App installed successfully! You can now launch it from your home screen.');
-    
+
     // Show success message
     setTimeout(() => {
         if (confirm('App installed successfully! Would you like to open it now?')) {
@@ -214,36 +192,6 @@ function initializeScreenshotCarousel() {
         phoneMockup.addEventListener('mouseleave', () => {
             startAutoPlay();
         });
-    }
-}
-
-// Platform Tabs
-function initializePlatformTabs() {
-    const tabs = document.querySelectorAll('.tab-btn');
-    const panels = document.querySelectorAll('.platform-panel');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const platform = tab.dataset.platform;
-
-            // Remove active class from all tabs and panels
-            tabs.forEach(t => t.classList.remove('active'));
-            panels.forEach(p => p.classList.remove('active'));
-
-            // Add active class to clicked tab and corresponding panel
-            tab.classList.add('active');
-            const targetPanel = document.querySelector(`.platform-panel[data-platform="${platform}"]`);
-            if (targetPanel) {
-                targetPanel.classList.add('active');
-            }
-        });
-    });
-
-    // Auto-select platform on load
-    const platform = detectPlatform();
-    const defaultTab = document.querySelector(`[data-platform="${platform}"]`);
-    if (defaultTab) {
-        defaultTab.click();
     }
 }
 
