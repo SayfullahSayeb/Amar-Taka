@@ -133,7 +133,7 @@ window.addEventListener('appinstalled', () => {
     // Show success message
     setTimeout(() => {
         if (confirm('App installed successfully! Would you like to open it now?')) {
-            window.location.href = '../index.html';
+            window.location.href = '../../index.html';
         }
     }, 500);
 });
