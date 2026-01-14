@@ -4,6 +4,8 @@ class NavigationManager {
         this.isNavigating = false;
         this.initialized = false;
         this.navHandlers = new Map(); // Track event handlers to prevent duplicates
+        this.backPressTime = 0; // Track time of last back press
+        this.backPressTimeout = 2000; // 2 seconds window for double back press
     }
 
     init() {
@@ -13,6 +15,7 @@ class NavigationManager {
 
         this.setupNavigation();
         this.setupHashListener();
+        this.setupBackButtonHandler(); // Add back button handler
         this.initialized = true;
 
         // Navigate to initial page
@@ -106,6 +109,96 @@ class NavigationManager {
 
         window.addEventListener('hashchange', this.hashChangeHandler);
     }
+
+    setupBackButtonHandler() {
+        // Push initial state to enable back button handling
+        if (!window.history.state || !window.history.state.page) {
+            window.history.replaceState({ page: 'home' }, '', window.location.href);
+        }
+
+        // Handle popstate (back button) event
+        window.addEventListener('popstate', (event) => {
+            // Prevent default back navigation
+            event.preventDefault();
+
+            const currentTime = Date.now();
+
+            // If user is on home page
+            if (this.currentPage === 'home') {
+                // Check if this is a second back press within timeout window
+                if (currentTime - this.backPressTime < this.backPressTimeout) {
+                    // Second back press on home - exit app
+                    this.exitApp();
+                } else {
+                    // First back press on home - show toast and prepare for exit
+                    this.showExitToast();
+                    this.backPressTime = currentTime;
+                    // Push state back to prevent actual navigation
+                    window.history.pushState({ page: 'home' }, '', '#home');
+                }
+            } else {
+                // User is on any other page - navigate to home
+                this.navigateTo('home');
+                this.backPressTime = 0; // Reset back press timer
+            }
+        });
+
+        // Override the default hash navigation to work with our back button handler
+        window.addEventListener('hashchange', () => {
+            // Push state to maintain our back button control
+            if (window.history.state && window.history.state.page !== this.currentPage) {
+                window.history.pushState({ page: this.currentPage }, '', `#${this.currentPage}`);
+            }
+        });
+    }
+
+    showExitToast() {
+        // Create or update exit toast
+        let toast = document.getElementById('exit-toast');
+
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'exit-toast';
+            toast.className = 'exit-toast';
+            toast.textContent = lang.translate('pressBackAgainToExit') || 'Press back again to exit';
+            document.body.appendChild(toast);
+        }
+
+        // Show toast
+        toast.classList.add('show');
+
+        // Hide toast after timeout
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, this.backPressTimeout);
+    }
+
+    exitApp() {
+        // Try to close the app (works in PWA mode)
+        if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+            // PWA mode - close the window
+            window.close();
+        } else {
+            // Browser mode - try to close or navigate away
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
+            }
+        }
+
+        // Fallback: If window.close() doesn't work (browser restrictions)
+        setTimeout(() => {
+            // Show a message that the app cannot be closed
+            const toast = document.getElementById('exit-toast');
+            if (toast) {
+                toast.textContent = lang.translate('cannotCloseApp') || 'Cannot close app. Please close manually.';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+        }, 100);
+    }
+
 
     isValidPage(page) {
         const validPages = ['home', 'transactions', 'analysis', 'goals', 'settings'];

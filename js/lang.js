@@ -212,6 +212,10 @@ const translations = {
         budgetLeft: 'Budget Left',
         safeDaily: 'Safe Daily Limit',
         perDay: '/day',
+
+        // Back Button Exit
+        pressBackAgainToExit: 'Press back again to exit',
+        cannotCloseApp: 'Cannot close app. Please close manually.',
     },
 
     bn: {
@@ -426,6 +430,10 @@ const translations = {
         budgetLeft: 'বাজেট বাকি',
         safeDaily: 'নিরাপদ দৈনিক সীমা',
         perDay: '/দিন',
+
+        // Back Button Exit
+        pressBackAgainToExit: 'বন্ধ করতে আবার ব্যাক চাপুন',
+        cannotCloseApp: 'অ্যাপ বন্ধ করা যাচ্ছে না। ম্যানুয়ালি বন্ধ করুন।',
     }
 };
 
