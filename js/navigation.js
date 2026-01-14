@@ -6,6 +6,7 @@ class NavigationManager {
         this.navHandlers = new Map(); // Track event handlers to prevent duplicates
         this.backPressTime = 0; // Track time of last back press
         this.backPressTimeout = 2000; // 2 seconds window for double back press
+        this.isProgrammaticNavigation = false; // Track if navigation is programmatic
     }
 
     init() {
@@ -111,15 +112,13 @@ class NavigationManager {
     }
 
     setupBackButtonHandler() {
-        // Push initial state to enable back button handling
-        if (!window.history.state || !window.history.state.page) {
-            window.history.replaceState({ page: 'home' }, '', window.location.href);
-        }
-
         // Handle popstate (back button) event
         window.addEventListener('popstate', (event) => {
-            // Prevent default back navigation
-            event.preventDefault();
+            // Ignore if this is a programmatic navigation
+            if (this.isProgrammaticNavigation) {
+                this.isProgrammaticNavigation = false;
+                return;
+            }
 
             const currentTime = Date.now();
 
@@ -140,14 +139,6 @@ class NavigationManager {
                 // User is on any other page - navigate to home
                 this.navigateTo('home');
                 this.backPressTime = 0; // Reset back press timer
-            }
-        });
-
-        // Override the default hash navigation to work with our back button handler
-        window.addEventListener('hashchange', () => {
-            // Push state to maintain our back button control
-            if (window.history.state && window.history.state.page !== this.currentPage) {
-                window.history.pushState({ page: this.currentPage }, '', `#${this.currentPage}`);
             }
         });
     }
@@ -229,6 +220,7 @@ class NavigationManager {
 
             // Update URL hash if needed
             if (updateHash) {
+                this.isProgrammaticNavigation = true;
                 window.location.hash = pageName;
             }
 
