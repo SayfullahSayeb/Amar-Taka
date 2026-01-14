@@ -6,7 +6,6 @@ class NavigationManager {
         this.navHandlers = new Map(); // Track event handlers to prevent duplicates
         this.backPressTime = 0; // Track time of last back press
         this.backPressTimeout = 2000; // 2 seconds window for double back press
-        this.isProgrammaticNavigation = false; // Track if navigation is programmatic
     }
 
     init() {
@@ -16,7 +15,7 @@ class NavigationManager {
 
         this.setupNavigation();
         this.setupHashListener();
-        this.setupBackButtonHandler(); // Add back button handler
+        this.setupBackButtonHandler();
         this.initialized = true;
 
         // Navigate to initial page
@@ -114,12 +113,6 @@ class NavigationManager {
     setupBackButtonHandler() {
         // Handle popstate (back button) event
         window.addEventListener('popstate', (event) => {
-            // Ignore if this is a programmatic navigation
-            if (this.isProgrammaticNavigation) {
-                this.isProgrammaticNavigation = false;
-                return;
-            }
-
             const currentTime = Date.now();
 
             // If user is on home page
@@ -129,8 +122,7 @@ class NavigationManager {
                     // Second back press on home - exit app
                     this.exitApp();
                 } else {
-                    // First back press on home - show toast and prepare for exit
-                    this.showExitToast();
+                    // First back press on home - prepare for exit (no toast)
                     this.backPressTime = currentTime;
                     // Push state back to prevent actual navigation
                     window.history.pushState({ page: 'home' }, '', '#home');
@@ -141,27 +133,6 @@ class NavigationManager {
                 this.backPressTime = 0; // Reset back press timer
             }
         });
-    }
-
-    showExitToast() {
-        // Create or update exit toast
-        let toast = document.getElementById('exit-toast');
-
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'exit-toast';
-            toast.className = 'exit-toast';
-            toast.textContent = lang.translate('pressBackAgainToExit') || 'Press back again to exit';
-            document.body.appendChild(toast);
-        }
-
-        // Show toast
-        toast.classList.add('show');
-
-        // Hide toast after timeout
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, this.backPressTimeout);
     }
 
     exitApp() {
@@ -177,17 +148,6 @@ class NavigationManager {
                 window.close();
             }
         }
-
-        // Fallback: If window.close() doesn't work (browser restrictions)
-        setTimeout(() => {
-            // Show a message that the app cannot be closed
-            const toast = document.getElementById('exit-toast');
-            if (toast) {
-                toast.textContent = lang.translate('cannotCloseApp') || 'Cannot close app. Please close manually.';
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-            }
-        }, 100);
     }
 
 
@@ -220,7 +180,6 @@ class NavigationManager {
 
             // Update URL hash if needed
             if (updateHash) {
-                this.isProgrammaticNavigation = true;
                 window.location.hash = pageName;
             }
 
