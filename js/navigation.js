@@ -25,74 +25,63 @@ class NavigationManager {
     }
 
     setupNavigation() {
-        const navItems = document.querySelectorAll('.nav-item');
+        // Use event delegation on the bottom nav container
+        const bottomNav = document.querySelector('.bottom-nav');
 
-        navItems.forEach(item => {
-            // Remove any existing listeners first
-            const oldHandler = this.navHandlers.get(item);
-            if (oldHandler) {
-                item.removeEventListener('click', oldHandler);
+        if (bottomNav) {
+            // Remove old listener if exists
+            if (this.navClickHandler) {
+                bottomNav.removeEventListener('click', this.navClickHandler);
             }
 
-            // Create new handler
-            const handler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            // Create delegated click handler
+            this.navClickHandler = (e) => {
+                // Find the closest nav-item (in case user clicks on icon or span inside)
+                const navItem = e.target.closest('.nav-item');
 
-                const page = e.currentTarget.dataset.page;
+                if (navItem && navItem.dataset.page) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                if (page && this.isValidPage(page)) {
-                    this.navigateTo(page);
+                    const page = navItem.dataset.page;
+
+                    if (page && this.isValidPage(page)) {
+                        this.navigateTo(page);
+                    }
                 }
             };
 
-            // Store handler reference
-            this.navHandlers.set(item, handler);
-
-            // Add listener (removed capture phase to not interfere with other buttons)
-            item.addEventListener('click', handler);
-        });
+            // Add single delegated listener to the container
+            bottomNav.addEventListener('click', this.navClickHandler);
+        }
 
         // Setup page navigation buttons (Transactions <-> Analysis)
         this.setupPageButtons();
     }
 
     setupPageButtons() {
-        const gotoAnalysisBtn = document.getElementById('goto-analysis-btn');
-        if (gotoAnalysisBtn) {
-            // Remove old listener if exists
-            const oldHandler = this.navHandlers.get('goto-analysis');
-            if (oldHandler) {
-                gotoAnalysisBtn.removeEventListener('click', oldHandler);
-            }
-
-            const handler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.navigateTo('analysis');
-            };
-
-            this.navHandlers.set('goto-analysis', handler);
-            gotoAnalysisBtn.addEventListener('click', handler);
+        // Use event delegation on document for page navigation buttons
+        // Remove old listeners if they exist
+        if (this.pageButtonsHandler) {
+            document.removeEventListener('click', this.pageButtonsHandler);
         }
 
-        const gotoTransactionsBtn = document.getElementById('goto-transactions-btn');
-        if (gotoTransactionsBtn) {
-            // Remove old listener if exists
-            const oldHandler = this.navHandlers.get('goto-transactions');
-            if (oldHandler) {
-                gotoTransactionsBtn.removeEventListener('click', oldHandler);
-            }
-
-            const handler = (e) => {
+        this.pageButtonsHandler = (e) => {
+            const target = e.target.closest('#goto-analysis-btn, #goto-transactions-btn');
+            
+            if (target) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.navigateTo('transactions');
-            };
+                
+                if (target.id === 'goto-analysis-btn') {
+                    this.navigateTo('analysis');
+                } else if (target.id === 'goto-transactions-btn') {
+                    this.navigateTo('transactions');
+                }
+            }
+        };
 
-            this.navHandlers.set('goto-transactions', handler);
-            gotoTransactionsBtn.addEventListener('click', handler);
-        }
+        document.addEventListener('click', this.pageButtonsHandler);
     }
 
     setupHashListener() {
