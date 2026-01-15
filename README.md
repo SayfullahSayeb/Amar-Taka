@@ -1,6 +1,6 @@
 # About - Amar Taka
 
-Amar Taka helps you track your income and expenses without compromising your privacy. All your financial data stays on your device and never gets sent to any server. No account signup required, no tracking, no cloud storage.
+Amar Taka helps you track your income and expenses without compromising your privacy. All your financial data stays on your device and is never sent to any server. No account signup is required, there is no tracking, and no cloud storage is used. Everything is stored locally in your browser using IndexedDB, so the app works fully offline and never connects to any server. You have complete control over your data and can export it anytime. Your financial information remains completely private.
 
 ## Key Features
 
@@ -14,10 +14,6 @@ Amar Taka helps you track your income and expenses without compromising your pri
 - PIN protection for privacy
 - Secondary profile for business or shared finances
 - Backup and restore your data anytime
-
-## Privacy
-
-Your financial data is completely private. Everything is stored locally in your browser using IndexedDB. The app works offline and never connects to any server. You have full control over your data and can export it anytime.
 
 ## Compatibility
 
