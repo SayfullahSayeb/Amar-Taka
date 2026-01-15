@@ -1291,6 +1291,19 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content reset-modal-content">
+            <h2 class="reset-modal-title" id="confirm-title">Confirm Action</h2>
+            <p class="reset-modal-text" id="confirm-message">Are you sure?</p>
+
+            <div class="reset-modal-buttons" style="margin-top: 24px;">
+                <button type="button" class="btn-reset-cancel" id="confirm-cancel">Cancel</button>
+                <button type="button" class="btn-reset-delete enabled" id="confirm-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Onboarding Check -->
     <script>
         // Check if onboarding is completed before loading the app

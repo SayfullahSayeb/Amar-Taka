@@ -15,6 +15,7 @@ class NavigationManager {
         this.setupNavigation();
         this.setupHashListener();
         this.setupBackButtonHandler();
+        this.setupModalObserver();
         this.initialized = true;
 
         // Navigate to initial page
@@ -106,6 +107,16 @@ class NavigationManager {
     setupBackButtonHandler() {
         // Handle popstate (back button) event
         window.addEventListener('popstate', (event) => {
+            // First, check if any modal is open
+            const openModal = document.querySelector('.modal.active');
+            if (openModal) {
+                // Close the modal instead of navigating
+                this.closeAllModals();
+                // Push state back to prevent actual navigation
+                window.history.pushState({ page: this.currentPage }, '', `#${this.currentPage}`);
+                return;
+            }
+
             const currentTime = Date.now();
 
             // If user is on home page
@@ -128,8 +139,41 @@ class NavigationManager {
         });
     }
 
-    exitApp() {
-        // Try to close the app (works in PWA mode)
+    setupModalObserver() {
+        // Watch for modals being opened
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const target = mutation.target;
+                    if (target.classList.contains('modal') && target.classList.contains('active')) {
+                        // Modal was just opened - push a history state
+                        window.history.pushState({ modal: true, page: this.currentPage }, '', `#${this.currentPage}`);
+                    }
+                }
+            });
+        });
+
+        // Observe all modals
+        document.querySelectorAll('.modal').forEach(modal => {
+            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+        });
+    }
+
+    async exitApp() {
+        // Show confirmation dialog
+        const confirmed = await Utils.confirm(
+            'Do you really want to exit the app?',
+            'Exit App',
+            'Exit'
+        );
+
+        if (!confirmed) {
+            // User cancelled - push state back to stay in app
+            window.history.pushState({ page: 'home' }, '', '#home');
+            return;
+        }
+
+        // User confirmed - close the app
         if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
             // PWA mode - close the window
             window.close();
@@ -173,8 +217,8 @@ class NavigationManager {
 
             // Update URL hash if needed (do this BEFORE showing page to avoid flash)
             if (updateHash) {
-                // Use replaceState to avoid triggering hashchange
-                window.history.replaceState({ page: pageName }, '', `#${pageName}`);
+                // Use pushState to create a history entry for back button
+                window.history.pushState({ page: pageName }, '', `#${pageName}`);
             }
 
             // Scroll to top immediately
