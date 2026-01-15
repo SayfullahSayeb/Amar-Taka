@@ -454,6 +454,9 @@ input {
     color: #666;
     text-decoration: none;
     transition: color var(--transition-fast);
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
 }
 
 .see-all-link:hover {
@@ -633,12 +636,6 @@ input {
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-md);
     box-shadow: 0 2px 8px var(--shadow-color);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .card-header {
@@ -913,11 +910,6 @@ input {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 8px var(--shadow-color);
-    transition: transform var(--transition-fast);
-}
-
-.transaction-item:hover {
-    transform: translateX(4px);
 }
 
 /* Expense Overview Card */
@@ -963,12 +955,6 @@ input {
     border-radius: var(--radius-md);
     flex: 1;
     background-color: var(--bg-secondary);
-    transition: all var(--transition-fast);
-}
-
-.expense-stat-sub:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .expense-stat-sub .stat-label {

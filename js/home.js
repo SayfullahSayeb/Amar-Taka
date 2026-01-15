@@ -21,9 +21,26 @@ class HomeManager {
             });
         }
 
+        // Add event listener for "See all" link in transactions history
+        this.setupSeeAllLink();
+
         await this.render();
         // Set initial icon state based on saved preference
         this.updatePrivacyIcon();
+    }
+
+    setupSeeAllLink() {
+        // Use event delegation on the document to handle dynamically added links
+        document.addEventListener('click', (e) => {
+            const seeAllLink = e.target.closest('.see-all-link');
+            if (seeAllLink && seeAllLink.getAttribute('href') === '#transactions') {
+                e.preventDefault();
+                // Force navigation to transactions page
+                if (typeof navigationManager !== 'undefined') {
+                    navigationManager.navigateTo('transactions');
+                }
+            }
+        });
     }
 
     async render() {

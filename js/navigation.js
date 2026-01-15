@@ -3,9 +3,8 @@ class NavigationManager {
         this.currentPage = 'home';
         this.isNavigating = false;
         this.initialized = false;
-        this.navHandlers = new Map(); // Track event handlers to prevent duplicates
-        this.backPressTime = 0; // Track time of last back press
-        this.backPressTimeout = 2000; // 2 seconds window for double back press
+        this.backPressTime = 0;
+        this.backPressTimeout = 2000;
     }
 
     init() {
@@ -46,7 +45,7 @@ class NavigationManager {
                     const page = navItem.dataset.page;
 
                     if (page && this.isValidPage(page)) {
-                        this.navigateTo(page);
+                        this.navigateTo(page, true);
                     }
                 }
             };
@@ -68,15 +67,15 @@ class NavigationManager {
 
         this.pageButtonsHandler = (e) => {
             const target = e.target.closest('#goto-analysis-btn, #goto-transactions-btn');
-            
+
             if (target) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 if (target.id === 'goto-analysis-btn') {
-                    this.navigateTo('analysis');
+                    this.navigateTo('analysis', true);
                 } else if (target.id === 'goto-transactions-btn') {
-                    this.navigateTo('transactions');
+                    this.navigateTo('transactions', true);
                 }
             }
         };
@@ -91,6 +90,11 @@ class NavigationManager {
         }
 
         this.hashChangeHandler = () => {
+            // Ignore hashchange if we're currently navigating (we set the hash ourselves)
+            if (this.isNavigating) {
+                return;
+            }
+
             const hash = window.location.hash.slice(1);
             const page = this.isValidPage(hash) ? hash : 'home';
             this.navigateTo(page, false);
@@ -118,7 +122,7 @@ class NavigationManager {
                 }
             } else {
                 // User is on any other page - navigate to home
-                this.navigateTo('home');
+                this.navigateTo('home', true);
                 this.backPressTime = 0; // Reset back press timer
             }
         });
@@ -145,7 +149,7 @@ class NavigationManager {
         return validPages.includes(page);
     }
 
-    async navigateTo(pageName, updateHash = true) {
+    async navigateTo(pageName, updateHash = false) {
         // Prevent multiple simultaneous navigations
         if (this.isNavigating) {
             return;
@@ -157,20 +161,24 @@ class NavigationManager {
         }
 
         // Don't navigate if already on the page
-        if (this.currentPage === pageName && !updateHash) {
+        if (this.currentPage === pageName) {
             return;
         }
 
         this.isNavigating = true;
 
         try {
+            // Update current page FIRST before any async operations
+            this.currentPage = pageName;
+
+            // Update URL hash if needed (do this BEFORE showing page to avoid flash)
+            if (updateHash) {
+                // Use replaceState to avoid triggering hashchange
+                window.history.replaceState({ page: pageName }, '', `#${pageName}`);
+            }
+
             // Scroll to top immediately
             window.scrollTo(0, 0);
-
-            // Update URL hash if needed
-            if (updateHash) {
-                window.location.hash = pageName;
-            }
 
             // Close all modals
             this.closeAllModals();
@@ -194,9 +202,6 @@ class NavigationManager {
                     item.classList.add('active');
                 }
             });
-
-            // Update current page
-            this.currentPage = pageName;
 
             // Render page content
             await this.renderPageContent(pageName);
