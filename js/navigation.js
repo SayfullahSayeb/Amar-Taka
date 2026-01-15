@@ -3,8 +3,6 @@ class NavigationManager {
         this.currentPage = 'home';
         this.isNavigating = false;
         this.initialized = false;
-        this.backPressTime = 0;
-        this.backPressTimeout = 2000;
     }
 
     init() {
@@ -114,8 +112,8 @@ class NavigationManager {
             this.handlingPopstate = true;
 
             try {
-                // First, check if any modal is open (except confirm modal)
-                const openModal = document.querySelector('.modal.active:not(#confirm-modal)');
+                // First, check if any modal is open
+                const openModal = document.querySelector('.modal.active');
                 if (openModal) {
                     // Close the modal instead of navigating
                     this.closeAllModals();
@@ -124,32 +122,16 @@ class NavigationManager {
                     return;
                 }
 
-                const currentTime = Date.now();
-
-                // If user is on home page
-                if (this.currentPage === 'home') {
-                    // Check if this is a second back press within timeout window
-                    if (currentTime - this.backPressTime < this.backPressTimeout) {
-                        // Second back press on home - show exit confirmation
-                        // Immediately push state back to prevent navigation
-                        window.history.pushState({ page: 'home' }, '', '#home');
-                        // Now await the exit confirmation
-                        await this.exitApp();
-                    } else {
-                        // First back press on home - prepare for exit (no toast)
-                        this.backPressTime = currentTime;
-                        // Push state back to prevent actual navigation
-                        window.history.pushState({ page: 'home' }, '', '#home');
-                    }
-                } else {
-                    // User is on any other page - navigate to home
+                // If user is not on home page, navigate to home
+                if (this.currentPage !== 'home') {
                     this.navigateTo('home', true);
-                    this.backPressTime = 0; // Reset back press timer
                 }
+                // If on home page, allow browser to go back normally
             } finally {
                 this.handlingPopstate = false;
             }
         });
+
     }
 
     setupModalObserver() {
@@ -158,10 +140,9 @@ class NavigationManager {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                     const target = mutation.target;
-                    // Exclude confirm modal from history management
+                    // Push history state for all modals when opened
                     if (target.classList.contains('modal') &&
-                        target.classList.contains('active') &&
-                        target.id !== 'confirm-modal') {
+                        target.classList.contains('active')) {
                         // Modal was just opened - push a history state
                         window.history.pushState({ modal: true, page: this.currentPage }, '', `#${this.currentPage}`);
                     }
@@ -173,33 +154,6 @@ class NavigationManager {
         document.querySelectorAll('.modal').forEach(modal => {
             observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
         });
-    }
-
-    async exitApp() {
-        // Show confirmation dialog
-        const confirmed = await Utils.confirm(
-            'Do you really want to exit the app?',
-            'Exit App',
-            'Exit'
-        );
-
-        if (!confirmed) {
-            // User cancelled - stay in app (state already pushed before dialog)
-            return;
-        }
-
-        // User confirmed - close the app
-        if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-            // PWA mode - close the window
-            window.close();
-        } else {
-            // Browser mode - try to close or navigate away
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.close();
-            }
-        }
     }
 
 
