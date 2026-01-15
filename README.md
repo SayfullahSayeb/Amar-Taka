@@ -1,4 +1,4 @@
-# About
+# About - Amar Taka
 
 Amar Taka helps you track your income and expenses without compromising your privacy. All your financial data stays on your device and never gets sent to any server. No account signup required, no tracking, no cloud storage.
 
