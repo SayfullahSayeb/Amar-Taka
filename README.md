@@ -19,6 +19,10 @@ Amar Taka helps you track your income and expenses without compromising your pri
 
 Your financial data is completely private. Everything is stored locally in your browser using IndexedDB. The app works offline and never connects to any server. You have full control over your data and can export it anytime.
 
+## Compatibility
+
+Works on all modern browsers (Chrome, Edge, Firefox, Safari) across Windows, macOS, Linux, Android, and iOS.
+
 ## Installation
 
 You can use Amar Taka directly in your browser or install it as a Progressive Web App (PWA) for a better experience:
@@ -39,7 +43,3 @@ You can use Amar Taka directly in your browser or install it as a Progressive We
 ## Data Management
 
 Your data is automatically saved with every change. For safety, you can export a backup file from Settings and import it later to restore your data on any device.
-
-## Compatibility
-
-Works on all modern browsers (Chrome, Edge, Firefox, Safari) across Windows, macOS, Linux, Android, and iOS.
