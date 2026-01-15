@@ -106,35 +106,48 @@ class NavigationManager {
 
     setupBackButtonHandler() {
         // Handle popstate (back button) event
-        window.addEventListener('popstate', (event) => {
-            // First, check if any modal is open
-            const openModal = document.querySelector('.modal.active');
-            if (openModal) {
-                // Close the modal instead of navigating
-                this.closeAllModals();
-                // Push state back to prevent actual navigation
-                window.history.pushState({ page: this.currentPage }, '', `#${this.currentPage}`);
+        window.addEventListener('popstate', async (event) => {
+            // Prevent recursive handling
+            if (this.handlingPopstate) {
                 return;
             }
+            this.handlingPopstate = true;
 
-            const currentTime = Date.now();
-
-            // If user is on home page
-            if (this.currentPage === 'home') {
-                // Check if this is a second back press within timeout window
-                if (currentTime - this.backPressTime < this.backPressTimeout) {
-                    // Second back press on home - exit app
-                    this.exitApp();
-                } else {
-                    // First back press on home - prepare for exit (no toast)
-                    this.backPressTime = currentTime;
+            try {
+                // First, check if any modal is open (except confirm modal)
+                const openModal = document.querySelector('.modal.active:not(#confirm-modal)');
+                if (openModal) {
+                    // Close the modal instead of navigating
+                    this.closeAllModals();
                     // Push state back to prevent actual navigation
-                    window.history.pushState({ page: 'home' }, '', '#home');
+                    window.history.pushState({ page: this.currentPage }, '', `#${this.currentPage}`);
+                    return;
                 }
-            } else {
-                // User is on any other page - navigate to home
-                this.navigateTo('home', true);
-                this.backPressTime = 0; // Reset back press timer
+
+                const currentTime = Date.now();
+
+                // If user is on home page
+                if (this.currentPage === 'home') {
+                    // Check if this is a second back press within timeout window
+                    if (currentTime - this.backPressTime < this.backPressTimeout) {
+                        // Second back press on home - show exit confirmation
+                        // Immediately push state back to prevent navigation
+                        window.history.pushState({ page: 'home' }, '', '#home');
+                        // Now await the exit confirmation
+                        await this.exitApp();
+                    } else {
+                        // First back press on home - prepare for exit (no toast)
+                        this.backPressTime = currentTime;
+                        // Push state back to prevent actual navigation
+                        window.history.pushState({ page: 'home' }, '', '#home');
+                    }
+                } else {
+                    // User is on any other page - navigate to home
+                    this.navigateTo('home', true);
+                    this.backPressTime = 0; // Reset back press timer
+                }
+            } finally {
+                this.handlingPopstate = false;
             }
         });
     }
@@ -145,7 +158,10 @@ class NavigationManager {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                     const target = mutation.target;
-                    if (target.classList.contains('modal') && target.classList.contains('active')) {
+                    // Exclude confirm modal from history management
+                    if (target.classList.contains('modal') &&
+                        target.classList.contains('active') &&
+                        target.id !== 'confirm-modal') {
                         // Modal was just opened - push a history state
                         window.history.pushState({ modal: true, page: this.currentPage }, '', `#${this.currentPage}`);
                     }
@@ -168,8 +184,7 @@ class NavigationManager {
         );
 
         if (!confirmed) {
-            // User cancelled - push state back to stay in app
-            window.history.pushState({ page: 'home' }, '', '#home');
+            // User cancelled - stay in app (state already pushed before dialog)
             return;
         }
 
