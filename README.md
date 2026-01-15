@@ -47,14 +47,3 @@ Your data is automatically saved with every change. For safety, you can export a
 ## Compatibility
 
 Works on all modern browsers (Chrome, Edge, Firefox, Safari) across Windows, macOS, Linux, Android, and iOS.
-
-## Links
-
-- GitHub: [github.com/SayfullahSayeb/Amar-Taka](https://github.com/SayfullahSayeb/Amar-Taka)
-- Report issues: [github.com/SayfullahSayeb/Amar-Taka/issues](https://github.com/SayfullahSayeb/Amar-Taka/issues)
-
----
-
-Free and open source. No subscription, no premium features.
-
-Developed with care by Sayeb
