@@ -1690,6 +1690,7 @@ input {
 
 .nav-item span {
     pointer-events: none;
+    user-select: none;
 }
 
 .nav-item.active {
@@ -2129,6 +2130,8 @@ body.modal-open {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: var(--z-toast);
     opacity: 0;
+    pointer-events: none;
+    /* Don't block clicks when hidden */
     transition: all var(--transition-normal);
     max-width: 90%;
     text-align: center;
@@ -2136,6 +2139,8 @@ body.modal-open {
 
 .toast.show {
     opacity: 1;
+    pointer-events: auto;
+    /* Allow clicks when visible */
     transform: translateX(-50%) translateY(0);
 }
 

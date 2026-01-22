@@ -3,6 +3,39 @@ class NavigationManager {
         this.currentPage = 'home';
         this.isNavigating = false;
         this.initialized = false;
+
+        // Create event handlers once in constructor to maintain references
+        // This allows proper removal when setupNavigation() is called multiple times
+        this.navClickHandler = (e) => {
+            // Find the closest nav-item (in case user clicks on icon or span inside)
+            const navItem = e.target.closest('.nav-item');
+
+            if (navItem && navItem.dataset.page) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const page = navItem.dataset.page;
+
+                if (page && this.isValidPage(page)) {
+                    this.navigateTo(page, true);
+                }
+            }
+        };
+
+        this.pageButtonsHandler = (e) => {
+            const target = e.target.closest('#goto-analysis-btn, #goto-transactions-btn');
+
+            if (target) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (target.id === 'goto-analysis-btn') {
+                    this.navigateTo('analysis', true);
+                } else if (target.id === 'goto-transactions-btn') {
+                    this.navigateTo('transactions', true);
+                }
+            }
+        };
     }
 
     init() {
@@ -27,29 +60,10 @@ class NavigationManager {
         const bottomNav = document.querySelector('.bottom-nav');
 
         if (bottomNav) {
-            // Remove old listener if exists
-            if (this.navClickHandler) {
-                bottomNav.removeEventListener('click', this.navClickHandler);
-            }
+            // Remove old listener if exists (using the same handler reference)
+            bottomNav.removeEventListener('click', this.navClickHandler);
 
-            // Create delegated click handler
-            this.navClickHandler = (e) => {
-                // Find the closest nav-item (in case user clicks on icon or span inside)
-                const navItem = e.target.closest('.nav-item');
-
-                if (navItem && navItem.dataset.page) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    const page = navItem.dataset.page;
-
-                    if (page && this.isValidPage(page)) {
-                        this.navigateTo(page, true);
-                    }
-                }
-            };
-
-            // Add single delegated listener to the container
+            // Add listener (handler is defined in constructor)
             bottomNav.addEventListener('click', this.navClickHandler);
         }
 
@@ -59,26 +73,10 @@ class NavigationManager {
 
     setupPageButtons() {
         // Use event delegation on document for page navigation buttons
-        // Remove old listeners if they exist
-        if (this.pageButtonsHandler) {
-            document.removeEventListener('click', this.pageButtonsHandler);
-        }
+        // Remove old listener (using the same handler reference)
+        document.removeEventListener('click', this.pageButtonsHandler);
 
-        this.pageButtonsHandler = (e) => {
-            const target = e.target.closest('#goto-analysis-btn, #goto-transactions-btn');
-
-            if (target) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (target.id === 'goto-analysis-btn') {
-                    this.navigateTo('analysis', true);
-                } else if (target.id === 'goto-transactions-btn') {
-                    this.navigateTo('transactions', true);
-                }
-            }
-        };
-
+        // Add listener (handler is defined in constructor)
         document.addEventListener('click', this.pageButtonsHandler);
     }
 
