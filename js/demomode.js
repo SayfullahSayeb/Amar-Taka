@@ -416,6 +416,11 @@ class DemoModeManager {
                 }
                 break;
         }
+
+        // Reinitialize navigation to ensure all event listeners are properly attached
+        if (typeof navigationManager !== 'undefined' && navigationManager.setupNavigation) {
+            navigationManager.setupNavigation();
+        }
     }
 
     showDemoModeWarning() {

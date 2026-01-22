@@ -701,6 +701,39 @@ body {
     font-size: 0.875rem;
 }
 
+.footer p {
+    margin-bottom: var(--spacing-sm);
+}
+
+.github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-base);
+    background: transparent;
+}
+
+.github-link:hover {
+    color: var(--primary);
+    background: rgba(41, 117, 111, 0.1);
+    transform: translateY(-2px);
+}
+
+.github-link svg {
+    transition: transform var(--transition-base);
+}
+
+.github-link:hover svg {
+    transform: scale(1.1);
+}
+
+
 /* Animations */
 @keyframes fadeIn {
     from {
