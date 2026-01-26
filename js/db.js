@@ -1,5 +1,5 @@
 const DB_NAME = 'FinanceTrackerDB';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 class Database {
     constructor() {
@@ -55,6 +55,15 @@ class Database {
                 });
                 categoryStore.createIndex('name', 'name', { unique: false });
                 categoryStore.createIndex('type', 'type', { unique: false });
+
+                // Create payment methods store
+                if (!db.objectStoreNames.contains('paymentMethods')) {
+                    const paymentMethodStore = db.createObjectStore('paymentMethods', {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    });
+                    paymentMethodStore.createIndex('name', 'name', { unique: false });
+                }
 
                 // Create settings store
                 if (!db.objectStoreNames.contains('settings')) {

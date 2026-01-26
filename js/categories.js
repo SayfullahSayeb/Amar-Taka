@@ -1,16 +1,16 @@
 class CategoriesManager {
     constructor() {
         this.defaultCategories = [
-            { name: 'Food', emoji: '🍔', color: '#FF6B6B', type: 'expense' },
-            { name: 'Transport', emoji: '🚗', color: '#4ECDC4', type: 'expense' },
-            { name: 'Bills', emoji: '💡', color: '#FFE66D', type: 'expense' },
-            { name: 'Shopping', emoji: '🛍️', color: '#A8E6CF', type: 'expense' },
-            { name: 'Medical', emoji: '🏥', color: '#FF8B94', type: 'expense' },
-            { name: 'Education', emoji: '📚', color: '#95E1D3', type: 'expense' },
-            { name: 'Rent', emoji: '🏠', color: '#F38181', type: 'expense' },
-            { name: 'Salary', emoji: '💰', color: '#34C759', type: 'income' },
-            { name: 'Investment', emoji: '📈', color: '#5AC8FA', type: 'income' },
-            { name: 'Others', emoji: '➕', color: '#8E8E93', type: 'both' }
+            { name: 'Food', emoji: 'fas fa-utensils', color: '#FF6B6B', type: 'expense' },
+            { name: 'Transport', emoji: 'fas fa-car', color: '#4ECDC4', type: 'expense' },
+            { name: 'Bills', emoji: 'fas fa-file-invoice-dollar', color: '#FFE66D', type: 'expense' },
+            { name: 'Shopping', emoji: 'fas fa-shopping-bag', color: '#A8E6CF', type: 'expense' },
+            { name: 'Medical', emoji: 'fas fa-hospital', color: '#FF8B94', type: 'expense' },
+            { name: 'Education', emoji: 'fas fa-graduation-cap', color: '#95E1D3', type: 'expense' },
+            { name: 'Rent', emoji: 'fas fa-home', color: '#F38181', type: 'expense' },
+            { name: 'Salary', emoji: 'fas fa-money-bill-wave', color: '#34C759', type: 'income' },
+            { name: 'Investment', emoji: 'fas fa-chart-line', color: '#5AC8FA', type: 'income' },
+            { name: 'Others', emoji: 'fas fa-plus-circle', color: '#8E8E93', type: 'both' }
         ];
     }
 
@@ -21,6 +21,28 @@ class CategoriesManager {
             for (const category of this.defaultCategories) {
                 await db.add('categories', category);
             }
+        } else {
+            // Migrate existing emoji-based categories to icon classes
+            await this.migrateEmojiToIcons();
+        }
+    }
+
+    async migrateEmojiToIcons() {
+        const categories = await db.getAll('categories');
+        let migrated = false;
+
+        for (const category of categories) {
+            // Check if emoji field contains actual emoji (not icon class)
+            if (category.emoji && !category.emoji.startsWith('fas ')) {
+                // Convert emoji to icon class
+                const iconClass = this.getIconForCategory(category.emoji, category.name);
+                await db.update('categories', { ...category, emoji: iconClass });
+                migrated = true;
+            }
+        }
+
+        if (migrated) {
+            console.log('Migrated categories from emoji to icons');
         }
     }
 
@@ -55,9 +77,15 @@ class CategoriesManager {
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.name;
-            option.textContent = `${category.emoji} ${lang.translate(category.name.toLowerCase())}`;
+            option.textContent = lang.translate(category.name.toLowerCase());
             selectElement.appendChild(option);
         });
+
+        // Add "Add New Category" option
+        const addNewOption = document.createElement('option');
+        addNewOption.value = '__add_new__';
+        addNewOption.textContent = `➕ Add New Category`;
+        selectElement.appendChild(addNewOption);
 
         // Initialize custom select if settingsManager is available
         if (typeof settingsManager !== 'undefined' && settingsManager.createCustomSelect) {
@@ -66,84 +94,133 @@ class CategoriesManager {
     }
 
     async renderCategoriesList() {
-        const container = document.getElementById('categories-list');
         const categories = await this.getCategories();
+
+        // Group categories by type
+        const incomeCategories = categories.filter(c => c.type === 'income' || c.type === 'both');
+        const expenseCategories = categories.filter(c => c.type === 'expense' || c.type === 'both');
+
+        // Render expense categories
+        this.renderCategoryList('expense-categories-list', expenseCategories);
+
+        // Render income categories
+        this.renderCategoryList('income-categories-list', incomeCategories);
+
+        // Setup event listeners for the buttons
+        this.setupCategoryEventListeners();
+    }
+
+    renderCategoryList(containerId, categories) {
+        const container = document.getElementById(containerId);
+
+        if (!container) return;
 
         if (categories.length === 0) {
             container.innerHTML = '<p style="text-align: center; padding: var(--spacing-lg); color: var(--text-tertiary);">No categories yet</p>';
             return;
         }
 
-        // Group categories by type
-        const incomeCategories = categories.filter(c => c.type === 'income' || c.type === 'both');
-        const expenseCategories = categories.filter(c => c.type === 'expense' || c.type === 'both');
+        let html = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: var(--spacing-lg);">';
 
-        let html = '';
+        categories.forEach((category) => {
+            // Map emoji to Font Awesome icon
+            const iconClass = this.getIconForCategory(category.emoji, category.name);
+            const bgColor = this.getColorForCategory(category.name);
 
-        // Income Section
-        if (incomeCategories.length > 0) {
             html += `
-                <div style="margin-bottom: var(--spacing-lg);">
-                    <h3 style="font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--text-secondary); margin-bottom: var(--spacing-sm); padding: 0 var(--spacing-sm); text-transform: uppercase; letter-spacing: 0.5px;">Income</h3>
-                    <div class="settings-group">
-                        ${incomeCategories.map((category, index) => `
-                            <div class="setting-item" style="border-bottom: ${index < incomeCategories.length - 1 ? '1px solid var(--border-color)' : 'none'}; padding: var(--spacing-md) var(--spacing-lg);">
-                                <div class="setting-info">
-                                    <span style="font-size: 20px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #f6f8fa; border-radius: var(--radius-sm);">
-                                        ${category.emoji}
-                                    </span>
-                                    <span style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); color: var(--text-primary);">
-                                        ${lang.translate(category.name.toLowerCase())}
-                                    </span>
-                                </div>
-                                <button class="btn-action category-edit-btn" data-category-id="${category.id}" title="Edit" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                        `).join('')}
+                <div class="category-grid-item" data-category-id="${category.id}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 12px; border-radius: 12px; transition: background 0.2s;">
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: ${bgColor}; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <i class="${iconClass}" style="font-size: 32px; color: white;"></i>
+                        <button class="category-edit-btn-overlay" data-category-id="${category.id}" style="position: absolute; top: -4px; right: -4px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="fas fa-edit" style="font-size: 10px; color: var(--text-secondary);"></i>
+                        </button>
                     </div>
+                    <span style="font-size: 13px; font-weight: 500; color: var(--text-primary); text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${lang.translate(category.name.toLowerCase())}
+                    </span>
                 </div>
             `;
-        }
+        });
 
-        // Expense Section
-        if (expenseCategories.length > 0) {
-            html += `
-                <div>
-                    <h3 style="font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--text-secondary); margin-bottom: var(--spacing-sm); padding: 0 var(--spacing-sm); text-transform: uppercase; letter-spacing: 0.5px;">Expense</h3>
-                    <div class="settings-group">
-                        ${expenseCategories.map((category, index) => `
-                            <div class="setting-item" style="border-bottom: ${index < expenseCategories.length - 1 ? '1px solid var(--border-color)' : 'none'}; padding: var(--spacing-md) var(--spacing-lg);">
-                                <div class="setting-info">
-                                    <span style="font-size: 20px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #f6f8fa; border-radius: var(--radius-sm);">
-                                        ${category.emoji}
-                                    </span>
-                                    <span style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); color: var(--text-primary);">
-                                        ${lang.translate(category.name.toLowerCase())}
-                                    </span>
-                                </div>
-                                <div style="display: flex; gap: var(--spacing-xs);">
-                                    <button class="btn-action category-edit-btn" data-category-id="${category.id}" title="Edit" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px;">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
+        html += '</div>';
 
         container.innerHTML = html;
+    }
 
-        // Setup event listeners for the buttons
-        this.setupCategoryEventListeners();
+    getIconForCategory(emoji, name) {
+        // Map emojis and category names to Font Awesome icons
+        const iconMap = {
+            '🍔': 'fas fa-utensils',
+            '🚗': 'fas fa-car',
+            '💡': 'fas fa-file-invoice-dollar',
+            '🛍️': 'fas fa-shopping-bag',
+            '🏥': 'fas fa-hospital',
+            '📚': 'fas fa-graduation-cap',
+            '🏠': 'fas fa-home',
+            '💰': 'fas fa-money-bill-wave',
+            '📈': 'fas fa-chart-line',
+            '➕': 'fas fa-plus-circle',
+            '🎮': 'fas fa-gamepad',
+            '☕': 'fas fa-coffee',
+            '🎬': 'fas fa-film',
+            '✈️': 'fas fa-plane',
+            '🎁': 'fas fa-gift',
+            '💊': 'fas fa-pills',
+            '🔧': 'fas fa-tools'
+        };
+
+        // Try to match by emoji first
+        if (iconMap[emoji]) {
+            return iconMap[emoji];
+        }
+
+        // Match by name as fallback
+        const nameLower = name.toLowerCase();
+        if (nameLower.includes('food')) return 'fas fa-utensils';
+        if (nameLower.includes('transport')) return 'fas fa-car';
+        if (nameLower.includes('bill')) return 'fas fa-file-invoice-dollar';
+        if (nameLower.includes('shop')) return 'fas fa-shopping-bag';
+        if (nameLower.includes('medical') || nameLower.includes('health')) return 'fas fa-hospital';
+        if (nameLower.includes('education') || nameLower.includes('school')) return 'fas fa-graduation-cap';
+        if (nameLower.includes('rent') || nameLower.includes('home')) return 'fas fa-home';
+        if (nameLower.includes('salary') || nameLower.includes('income')) return 'fas fa-money-bill-wave';
+        if (nameLower.includes('investment')) return 'fas fa-chart-line';
+
+        return 'fas fa-circle'; // Default icon
+    }
+
+    getColorForCategory(name) {
+        // Assign colors based on category name
+        const colorMap = {
+            'Food': '#FF6B6B',
+            'Transport': '#4ECDC4',
+            'Bills': '#FFE66D',
+            'Shopping': '#A8E6CF',
+            'Medical': '#FF8B94',
+            'Education': '#95E1D3',
+            'Rent': '#F38181',
+            'Salary': '#34C759',
+            'Investment': '#5AC8FA',
+            'Others': '#8E8E93'
+        };
+
+        return colorMap[name] || '#' + Math.floor(Math.random() * 16777215).toString(16);
     }
 
     setupCategoryEventListeners() {
-        // Edit buttons
-        const editButtons = document.querySelectorAll('.category-edit-btn');
+        // Edit buttons (overlay buttons)
+        const editButtons = document.querySelectorAll('.category-edit-btn-overlay');
         editButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering parent click
+                const categoryId = parseInt(btn.getAttribute('data-category-id'));
+                this.editCategory(categoryId);
+            });
+        });
+
+        // Also handle old style edit buttons if they exist
+        const oldEditButtons = document.querySelectorAll('.category-edit-btn');
+        oldEditButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const categoryId = parseInt(btn.getAttribute('data-category-id'));
                 this.editCategory(categoryId);
@@ -153,7 +230,11 @@ class CategoriesManager {
         // Delete button in modal
         const modalDeleteBtn = document.getElementById('delete-category-btn');
         if (modalDeleteBtn) {
-            modalDeleteBtn.addEventListener('click', () => {
+            // Remove existing listeners
+            const newDeleteBtn = modalDeleteBtn.cloneNode(true);
+            modalDeleteBtn.parentNode.replaceChild(newDeleteBtn, modalDeleteBtn);
+
+            newDeleteBtn.addEventListener('click', () => {
                 const categoryId = document.getElementById('category-id').value;
                 if (categoryId) {
                     this.confirmDeleteCategory(parseInt(categoryId));
@@ -183,15 +264,19 @@ class CategoriesManager {
         // Open the category form modal in edit mode
         const modal = document.getElementById('category-form-modal');
         const title = document.getElementById('category-form-title');
-        const emojiInput = document.getElementById('category-emoji');
+        const iconSelect = document.getElementById('category-icon');
         const nameInput = document.getElementById('category-name');
         const typeSelect = document.getElementById('category-type');
         const idInput = document.getElementById('category-id');
         const deleteBtn = document.getElementById('delete-category-btn');
 
-        if (modal && title && emojiInput && nameInput && typeSelect && idInput) {
+        if (modal && title && iconSelect && nameInput && typeSelect && idInput) {
             title.textContent = 'Edit Category';
-            emojiInput.value = category.emoji;
+
+            // Set icon - convert emoji to icon class if needed
+            const iconClass = category.emoji.startsWith('fas ') ? category.emoji : this.getIconForCategory(category.emoji, category.name);
+            iconSelect.value = iconClass;
+
             nameInput.value = category.name;
             typeSelect.value = category.type;
             idInput.value = category.id;
@@ -218,12 +303,18 @@ class CategoriesManager {
         );
 
         if (confirmed) {
-            const success = await this.deleteCategory(id);
-            if (success) {
-                showToast('Category deleted successfully');
+            try {
+                await this.deleteCategory(id);
+                Utils.showToast('Category deleted successfully');
 
                 // Close the edit modal
                 document.getElementById('category-form-modal').classList.remove('active');
+
+                // Reopen the categories list modal
+                const categoriesModal = document.getElementById('categories-modal');
+                if (categoriesModal) {
+                    categoriesModal.classList.add('active');
+                }
 
                 // Refresh the categories list
                 await this.renderCategoriesList();
@@ -232,8 +323,9 @@ class CategoriesManager {
                 if (typeof categoryFormHandler !== 'undefined') {
                     categoryFormHandler.refreshTransactionCategoryDropdown();
                 }
-            } else {
-                showToast('Error deleting category');
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                Utils.showToast('Error deleting category');
             }
         }
     }
@@ -335,18 +427,18 @@ class CategoryFormHandler {
     async handleSubmit(e) {
         e.preventDefault();
 
-        const emojiInput = document.getElementById('category-emoji');
+        const iconSelect = document.getElementById('category-icon');
         const nameInput = document.getElementById('category-name');
         const typeSelect = document.getElementById('category-type');
         const idInput = document.getElementById('category-id');
 
-        if (!emojiInput || !nameInput || !typeSelect) {
-            showToast('Please fill all fields');
+        if (!iconSelect || !nameInput || !typeSelect) {
+            Utils.showToast('Please fill all fields');
             return;
         }
 
         const categoryData = {
-            emoji: emojiInput.value.trim(),
+            emoji: iconSelect.value, // Store icon class as emoji
             name: nameInput.value.trim(),
             color: '#f6f8fa', // Fixed color for all categories
             type: typeSelect.value
@@ -354,7 +446,7 @@ class CategoryFormHandler {
 
         // Validate
         if (!categoryData.emoji || !categoryData.name) {
-            showToast('Please fill all required fields');
+            Utils.showToast('Please fill all required fields');
             return;
         }
 
@@ -364,29 +456,30 @@ class CategoryFormHandler {
             if (categoryId) {
                 // Edit mode
                 await categoriesManager.updateCategory(parseInt(categoryId), categoryData);
-                showToast('Category updated successfully');
+                Utils.showToast('Category updated successfully');
             } else {
                 // Add mode
                 await categoriesManager.addCategory(categoryData);
-                showToast('Category added successfully');
+                Utils.showToast('Category added successfully');
             }
 
             // Refresh the categories list
             await categoriesManager.renderCategoriesList();
 
             // Refresh transaction modal category dropdown if it's open
-            this.refreshTransactionCategoryDropdown();
+            // Pass the category name to auto-select it
+            this.refreshTransactionCategoryDropdown(categoryData.name);
 
             // Close modal
             this.closeModal();
 
         } catch (error) {
             console.error('Error saving category:', error);
-            showToast('Error saving category');
+            Utils.showToast('Error saving category');
         }
     }
 
-    refreshTransactionCategoryDropdown() {
+    refreshTransactionCategoryDropdown(selectedCategory = null) {
         // Check if transaction modal is open
         const transactionModal = document.getElementById('transaction-modal');
         if (transactionModal && transactionModal.classList.contains('active')) {
@@ -394,7 +487,7 @@ class CategoryFormHandler {
             const activeTypeBtn = document.querySelector('.type-btn.active');
             if (activeTypeBtn && typeof transactionsManager !== 'undefined') {
                 const type = activeTypeBtn.dataset.type;
-                transactionsManager.updateCategoryOptions(type);
+                transactionsManager.updateCategoryOptions(type, selectedCategory);
             }
         }
     }

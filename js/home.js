@@ -160,8 +160,8 @@ class HomeManager {
             };
 
             container.innerHTML = recentTransactions.map(transaction => {
-                // Get emoji with fallback
-                const emoji = categoriesManager.getCategoryEmoji(transaction.category) || '➕';
+                // Get icon class with fallback
+                const iconClass = categoriesManager.getCategoryEmoji(transaction.category) || 'fas fa-plus-circle';
 
                 // Format date
                 const transDate = new Date(transaction.date);
@@ -195,7 +195,7 @@ class HomeManager {
                     <div class="transaction-item ${transaction.type}">
                         <div class="transaction-info">
                             <div class="transaction-icon">
-                                <span class="category-icon">${emoji}</span>
+                                <span class="category-icon"><i class="${iconClass}"></i></span>
                             </div>
                             <div class="transaction-details">
                                 <span class="category-name">${transaction.category || 'Unknown'} <span style="font-size: 13px; font-weight: 400; color: var(--text-tertiary);"><i class="fas ${paymentIcon}" style="font-size: 10px;"></i> ${paymentMethodName}</span></span>

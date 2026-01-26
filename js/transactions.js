@@ -22,6 +22,9 @@ class TransactionsManager {
             settingsManager.createCustomSelect(sortSelect);
         }
 
+        // Initialize payment method dropdown
+        await this.updatePaymentMethodOptions();
+
         await this.render();
     }
 
@@ -64,6 +67,62 @@ class TransactionsManager {
                 this.updateCategoryOptions(type);
             });
         });
+
+        // Category select change listener
+        const categorySelect = document.getElementById('category');
+        if (categorySelect) {
+            categorySelect.addEventListener('change', (e) => {
+                if (e.target.value === '__add_new__') {
+                    if (typeof categoryFormHandler !== 'undefined') {
+                        // Pre-fill the type based on current transaction type
+                        const activeTypeBtn = document.querySelector('.type-btn.active');
+                        const preFillType = activeTypeBtn ? activeTypeBtn.dataset.type : 'expense';
+
+                        // Open the modal
+                        categoryFormHandler.openAddModal();
+
+                        const typeSelect = document.getElementById('category-type');
+                        if (typeSelect) {
+                            typeSelect.value = preFillType;
+
+                            // Manually update custom select UI if it exists
+                            const wrapper = typeSelect.nextElementSibling;
+                            if (wrapper && wrapper.classList.contains('custom-select-wrapper')) {
+                                // Update displayed text
+                                const selectedText = wrapper.querySelector('.custom-select-text');
+                                const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                                if (selectedText && selectedOption) {
+                                    selectedText.textContent = selectedOption.textContent;
+                                }
+
+                                // Update active option in dropdown
+                                const options = wrapper.querySelectorAll('.custom-select-option');
+                                options.forEach(opt => {
+                                    if (opt.dataset.value === preFillType) {
+                                        opt.classList.add('selected');
+                                    } else {
+                                        opt.classList.remove('selected');
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Payment method select change listener
+        const paymentMethodSelect = document.getElementById('payment-method');
+        if (paymentMethodSelect) {
+            paymentMethodSelect.addEventListener('change', (e) => {
+                if (e.target.value === '__add_new_payment__') {
+                    if (typeof paymentMethodFormHandler !== 'undefined') {
+                        // Open the modal
+                        paymentMethodFormHandler.openAddModal();
+                    }
+                }
+            });
+        }
 
 
         // Modal controls - only nav button now
@@ -206,7 +265,7 @@ class TransactionsManager {
     }
 
     renderTransaction(transaction) {
-        const emoji = categoriesManager.getCategoryEmoji(transaction.category);
+        const iconClass = categoriesManager.getCategoryEmoji(transaction.category);
         const categoryName = lang.translate(transaction.category.toLowerCase());
 
         // Get payment method icon
@@ -223,7 +282,7 @@ class TransactionsManager {
             <div class="transaction-item ${transaction.type}" data-id="${transaction.id}">
                 <div class="transaction-info">
                     <div class="transaction-icon">
-                        <span class="category-icon">${emoji}</span>
+                        <span class="category-icon"><i class="${iconClass}"></i></span>
                     </div>
                     <div class="transaction-details">
                         <span class="category-name">${categoryName} <span style="font-size: 13px; font-weight: 400; color: var(--text-tertiary);"><i class="fas ${paymentIcon}" style="font-size: 10px;"></i> ${paymentMethodName}</span></span>
@@ -307,7 +366,7 @@ class TransactionsManager {
         this.editingId = null;
     }
 
-    async updateCategoryOptions(type) {
+    async updateCategoryOptions(type, selectedCategory = null) {
         const categorySelect = document.getElementById('category');
 
         // Remove existing custom select wrapper if it exists
@@ -321,17 +380,57 @@ class TransactionsManager {
 
         // Populate with new categories
         await categoriesManager.populateCategorySelect(categorySelect, type);
+
+        // Auto-select the new category if provided
+        if (selectedCategory) {
+            categorySelect.value = selectedCategory;
+        }
     }
+
+    async updatePaymentMethodOptions(selectedMethod = null) {
+        const paymentMethodSelect = document.getElementById('payment-method');
+
+        // Remove existing custom select wrapper if it exists
+        const existingWrapper = paymentMethodSelect.nextSibling;
+        if (existingWrapper && existingWrapper.classList && existingWrapper.classList.contains('custom-select-wrapper')) {
+            existingWrapper.remove();
+        }
+
+        // Show the original select temporarily
+        paymentMethodSelect.style.display = '';
+
+        // Populate with payment methods
+        await paymentMethodsManager.populatePaymentMethodSelect(paymentMethodSelect);
+
+        // Auto-select the new payment method if provided
+        if (selectedMethod) {
+            paymentMethodSelect.value = selectedMethod;
+        }
+    }
+
 
     async handleSubmit(e) {
         e.preventDefault();
 
         const activeTypeBtn = document.querySelector('.type-btn.active');
+        const categoryVal = document.getElementById('category').value;
+        const paymentMethodVal = document.getElementById('payment-method').value;
+
+        if (categoryVal === '__add_new__') {
+            Utils.showToast('Please select a valid category');
+            return;
+        }
+
+        if (paymentMethodVal === '__add_new_payment__') {
+            Utils.showToast('Please select a valid payment method');
+            return;
+        }
+
         const transactionData = {
             type: activeTypeBtn.dataset.type,
             amount: parseFloat(document.getElementById('amount').value),
-            category: document.getElementById('category').value,
-            paymentMethod: document.getElementById('payment-method').value,
+            category: categoryVal,
+            paymentMethod: paymentMethodVal,
             date: document.getElementById('date').value,
             note: document.getElementById('note').value,
             createdAt: new Date().toISOString()

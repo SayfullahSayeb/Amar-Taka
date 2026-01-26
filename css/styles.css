@@ -1840,6 +1840,25 @@ body.modal-open {
     }
 }
 
+/* Category Tab Buttons */
+.category-tab-btn {
+    position: relative;
+}
+
+.category-tab-btn:hover {
+    color: var(--primary-color) !important;
+    background: var(--bg-tertiary) !important;
+}
+
+.category-tab-btn.active {
+    color: var(--primary-color) !important;
+    border-bottom-color: var(--primary-color) !important;
+}
+
+.category-tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;

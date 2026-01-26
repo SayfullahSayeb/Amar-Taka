@@ -262,12 +262,98 @@ class SettingsManager {
 
     async openCategoriesModal() {
         const modal = document.getElementById('categories-modal');
+
+        // Render categories in their respective tabs
         await categoriesManager.renderCategoriesList();
+
+        // Render payment methods
+        await paymentMethodsManager.renderPaymentMethodsList();
+
+        // Setup tab switching
+        this.setupCategoryTabs();
+
+        // Show expense tab by default
+        this.switchCategoryTab('expense');
+
         modal.classList.add('active');
+    }
+
+    setupCategoryTabs() {
+        const tabButtons = document.querySelectorAll('.category-tab-btn');
+        const addButton = document.getElementById('add-category-btn');
+        const addButtonText = document.getElementById('add-button-text');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                this.switchCategoryTab(tab);
+
+                // Update add button text
+                if (tab === 'expense') {
+                    addButtonText.textContent = 'Add Expense Category';
+                } else if (tab === 'income') {
+                    addButtonText.textContent = 'Add Income Category';
+                } else if (tab === 'payment') {
+                    addButtonText.textContent = 'Add Payment Method';
+                }
+            });
+        });
+
+        // Update add button click handler
+        addButton.onclick = () => {
+            const activeTab = document.querySelector('.category-tab-btn.active');
+            const tab = activeTab ? activeTab.dataset.tab : 'expense';
+
+            if (tab === 'payment') {
+                paymentMethodFormHandler.openAddModal();
+            } else {
+                categoryFormHandler.openAddModal();
+                // Set the type based on active tab
+                const typeSelect = document.getElementById('category-type');
+                if (typeSelect) {
+                    typeSelect.value = tab;
+                }
+            }
+        };
+    }
+
+    switchCategoryTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('.category-tab-btn').forEach(btn => {
+            if (btn.dataset.tab === tab) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Update tab content
+        document.querySelectorAll('.category-tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+
+        if (tab === 'expense') {
+            document.getElementById('expense-categories-tab').style.display = 'block';
+        } else if (tab === 'income') {
+            document.getElementById('income-categories-tab').style.display = 'block';
+        } else if (tab === 'payment') {
+            document.getElementById('payment-methods-tab').style.display = 'block';
+        }
     }
 
     closeCategoriesModal() {
         const modal = document.getElementById('categories-modal');
+        modal.classList.remove('active');
+    }
+
+    async openPaymentMethodsModal() {
+        const modal = document.getElementById('payment-methods-modal');
+        await paymentMethodsManager.renderPaymentMethodsList();
+        modal.classList.add('active');
+    }
+
+    closePaymentMethodsModal() {
+        const modal = document.getElementById('payment-methods-modal');
         modal.classList.remove('active');
     }
 

@@ -29,6 +29,9 @@ class App {
             // Initialize categories
             await categoriesManager.init();
 
+            // Initialize payment methods
+            await paymentMethodsManager.init();
+
             // Initialize demo mode
             await demoModeManager.init();
 

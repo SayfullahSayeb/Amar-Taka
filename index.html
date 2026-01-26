@@ -618,15 +618,51 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
+            <!-- Tab Buttons -->
+            <div
+                style="display: flex; gap: 8px; padding: 0 var(--spacing-lg); margin-top: var(--spacing-md); border-bottom: 2px solid var(--border-color);">
+                <button class="category-tab-btn active" data-tab="expense"
+                    style="flex: 1; padding: 12px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text-tertiary); transition: all 0.3s ease;">
+                    Expense
+                </button>
+                <button class="category-tab-btn" data-tab="income"
+                    style="flex: 1; padding: 12px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text-tertiary); transition: all 0.3s ease;">
+                    Income
+                </button>
+                <button class="category-tab-btn" data-tab="payment"
+                    style="flex: 1; padding: 12px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text-tertiary); transition: all 0.3s ease;">
+                    Payment
+                </button>
+            </div>
+
             <div class="modal-body categories-modal-body">
-                <div id="categories-list">
-                    <!-- Categories will be rendered here -->
+                <!-- Expense Categories Tab -->
+                <div id="expense-categories-tab" class="category-tab-content active">
+                    <div id="expense-categories-list">
+                        <!-- Expense categories will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Income Categories Tab -->
+                <div id="income-categories-tab" class="category-tab-content" style="display: none;">
+                    <div id="income-categories-list">
+                        <!-- Income categories will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Payment Methods Tab -->
+                <div id="payment-methods-tab" class="category-tab-content" style="display: none;">
+                    <div id="payment-methods-list">
+                        <!-- Payment methods will be rendered here -->
+                    </div>
                 </div>
             </div>
+
             <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: var(--spacing-lg);">
                 <button class="btn btn-primary" id="add-category-btn" style="width: 100%;">
                     <i class="fas fa-plus"></i>
-                    <span data-lang="addCategory">Add Category</span>
+                    <span id="add-button-text">Add Category</span>
                 </button>
             </div>
         </div>
@@ -645,29 +681,35 @@
 
             <form id="category-form" style="width: 100%; margin-top: 20px;">
                 <div class="form-group">
-                    <label for="category-emoji" style="text-align: left;">Emoji</label>
-                    <div class="emoji-picker-container">
-                        <input type="text" id="category-emoji" required maxlength="2" placeholder="🏷️"
-                            style="font-size: 32px; text-align: center; width: 80px;">
-                        <div class="emoji-suggestions">
-                            <button type="button" class="emoji-btn" data-emoji="🍔">🍔</button>
-                            <button type="button" class="emoji-btn" data-emoji="🚗">🚗</button>
-                            <button type="button" class="emoji-btn" data-emoji="💡">💡</button>
-                            <button type="button" class="emoji-btn" data-emoji="🛍️">🛍️</button>
-                            <button type="button" class="emoji-btn" data-emoji="🏥">🏥</button>
-                            <button type="button" class="emoji-btn" data-emoji="📚">📚</button>
-                            <button type="button" class="emoji-btn" data-emoji="🏠">🏠</button>
-                            <button type="button" class="emoji-btn" data-emoji="💰">💰</button>
-                            <button type="button" class="emoji-btn" data-emoji="📈">📈</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎮">🎮</button>
-                            <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎬">🎬</button>
-                            <button type="button" class="emoji-btn" data-emoji="✈️">✈️</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎁">🎁</button>
-                            <button type="button" class="emoji-btn" data-emoji="💊">💊</button>
-                            <button type="button" class="emoji-btn" data-emoji="🔧">🔧</button>
-                        </div>
-                    </div>
+                    <label for="category-icon" style="text-align: left;">Icon</label>
+                    <select id="category-icon" class="setting-select" required>
+                        <option value="fas fa-utensils">🍴 Food & Dining</option>
+                        <option value="fas fa-car">🚗 Transportation</option>
+                        <option value="fas fa-file-invoice-dollar">💡 Bills & Utilities</option>
+                        <option value="fas fa-shopping-bag">🛍️ Shopping</option>
+                        <option value="fas fa-hospital">🏥 Medical & Health</option>
+                        <option value="fas fa-graduation-cap">📚 Education</option>
+                        <option value="fas fa-home">🏠 Home & Rent</option>
+                        <option value="fas fa-money-bill-wave">💰 Salary & Income</option>
+                        <option value="fas fa-chart-line">📈 Investment</option>
+                        <option value="fas fa-gamepad">🎮 Entertainment</option>
+                        <option value="fas fa-coffee">☕ Cafe & Coffee</option>
+                        <option value="fas fa-film">🎬 Movies</option>
+                        <option value="fas fa-plane">✈️ Travel</option>
+                        <option value="fas fa-gift">🎁 Gifts</option>
+                        <option value="fas fa-pills">💊 Pharmacy</option>
+                        <option value="fas fa-tools">🔧 Maintenance</option>
+                        <option value="fas fa-dumbbell">💪 Fitness & Sports</option>
+                        <option value="fas fa-paw">🐾 Pets</option>
+                        <option value="fas fa-tshirt">👕 Clothing</option>
+                        <option value="fas fa-book">📖 Books</option>
+                        <option value="fas fa-music">🎵 Music</option>
+                        <option value="fas fa-pizza-slice">🍕 Fast Food</option>
+                        <option value="fas fa-gas-pump">⛽ Fuel</option>
+                        <option value="fas fa-phone">📱 Phone & Internet</option>
+                        <option value="fas fa-heartbeat">❤️ Insurance</option>
+                        <option value="fas fa-plus-circle">➕ Other</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -701,6 +743,77 @@
     </form>
     </div>
     </div>
+
+    <!-- Payment Methods Modal -->
+    <div id="payment-methods-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Payment Methods</h2>
+                <button class="btn-close" id="close-payment-methods-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body categories-modal-body">
+                <div id="payment-methods-list">
+                    <!-- Payment methods will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: var(--spacing-lg);">
+                <button class="btn btn-primary" id="add-payment-method-btn" style="width: 100%;">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Payment Method</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Payment Method Modal -->
+    <div id="payment-method-form-modal" class="modal">
+        <div class="modal-content reset-modal-content">
+            <button class="btn-close" id="close-payment-method-form-modal"
+                style="position: absolute; top: 16px; right: 16px;">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h2 class="reset-modal-title" id="payment-method-form-title">Add Payment Method</h2>
+            <p class="reset-modal-text">Create a custom payment method for your transactions.</p>
+
+            <form id="payment-method-form" style="width: 100%; margin-top: 20px;">
+                <div class="form-group">
+                    <label for="payment-method-name" style="text-align: left;">Payment Method Name</label>
+                    <input type="text" id="payment-method-name" required maxlength="30"
+                        placeholder="Enter payment method name">
+                </div>
+
+                <div class="form-group">
+                    <label for="payment-method-icon" style="text-align: left;">Icon</label>
+                    <select id="payment-method-icon" class="setting-select" required>
+                        <option value="fa-wallet">💼 Wallet</option>
+                        <option value="fa-money-bill-wave">💵 Cash</option>
+                        <option value="fa-credit-card">💳 Card</option>
+                        <option value="fa-mobile-alt">📱 Mobile</option>
+                        <option value="fa-university">🏦 Bank</option>
+                        <option value="fa-paypal">🅿️ PayPal</option>
+                        <option value="fa-bitcoin">₿ Bitcoin</option>
+                        <option value="fa-coins">🪙 Coins</option>
+                    </select>
+                </div>
+
+                <input type="hidden" id="payment-method-id">
+
+                <div class="reset-modal-buttons" style="margin-top: 24px;">
+                    <button type="button" class="btn-reset-cancel" id="cancel-payment-method-btn">Cancel</button>
+                    <button type="submit" class="btn-reset-delete enabled"
+                        style="background: linear-gradient(135deg, #438883 0%, #5ba89f 100%);">Save</button>
+                    <button type="button" class="btn btn-danger" id="delete-payment-method-btn" style="display: none;">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <!-- Set Name Modal -->
     <div id="name-modal" class="modal">
@@ -1348,6 +1461,7 @@
             'js/lang.js',
             'js/utils.js',
             'js/categories.js',
+            'js/payment-methods.js',
             'js/home.js',
             'js/transactions.js',
             'js/analysis.js',
