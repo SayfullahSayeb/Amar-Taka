@@ -492,7 +492,7 @@ class TransactionsManager {
                         ${transaction.note ? `<span class="transaction-note" style="font-size: var(--font-size-sm); color: var(--text-tertiary);">${transaction.note}</span>` : ''}
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="transaction-amount ${transaction.type}">
                         ${transaction.type === 'income' ? '+' : ''}${Utils.formatCurrency(transaction.amount, this.currency)}
                     </span>

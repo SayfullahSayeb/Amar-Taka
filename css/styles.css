@@ -811,7 +811,6 @@ input {
     justify-content: center;
     display: flex;
     align-items: center;
-    font-size: 14px;
     padding: 10px 8px;
 }
 
@@ -831,8 +830,8 @@ input {
     background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
     padding: 6px 12px;
-    margin-bottom: var(--spacing-sm);
     box-shadow: 0 2px 8px var(--shadow-color);
+    width: 100%;
 }
 
 .search-box i {
@@ -861,17 +860,15 @@ input {
 .filter-buttons {
     display: flex;
     gap: var(--spacing-sm);
-    flex: 1;
 }
 
 .btn-filter {
-    flex: 1;
     padding: var(--spacing-sm) var(--spacing-md);
     border: 1px solid var(--border-color);
     background-color: var(--bg-secondary);
     color: var(--text-secondary);
     border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
+    font-size: 16px;
     font-weight: var(--font-weight-medium);
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -1089,7 +1086,6 @@ input {
 .transaction-amount {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    margin-right: var(--spacing-sm);
 }
 
 .transaction-item.income .transaction-amount {
@@ -2196,10 +2192,6 @@ body.modal-open {
    =================================== */
 
 @media (max-width: 480px) {
-    .page-title {
-        font-size: var(--font-size-lg);
-    }
-
     .stats-card .amount {
         font-size: var(--font-size-xl);
     }
@@ -2286,6 +2278,7 @@ body.modal-open {
     background-color: var(--bg-tertiary);
     margin-bottom: 0;
     text-align: center;
+    border-radius: 20px;
 }
 
 
@@ -2327,12 +2320,6 @@ body.modal-open {
     font-size: var(--font-size-sm);
     color: var(--text-tertiary);
     line-height: 1.4;
-}
-
-.transaction-amount {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    margin-right: var(--spacing-sm);
 }
 
 .transaction-amount.income {
@@ -3099,7 +3086,6 @@ body.modal-open {
     max-height: 200px;
     opacity: 1;
     overflow-y: auto;
-    margin-right: 10px;
 }
 
 /* Dropdown opens upward when near bottom */
@@ -5004,21 +4990,6 @@ body.modal-open {
 
 .custom-select-wrapper.open .custom-select-arrow {
     transform: rotate(180deg);
-}
-
-.custom-select-options {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 12px var(--shadow-color);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
 }
 
 .custom-select-wrapper.open .custom-select-options {
