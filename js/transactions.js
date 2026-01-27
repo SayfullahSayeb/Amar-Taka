@@ -273,10 +273,12 @@ class TransactionsManager {
             'cash': 'fa-money-bill-wave',
             'card': 'fa-credit-card',
             'mobile': 'fa-mobile-alt',
+            'mobile banking': 'fa-mobile-alt',
             'bank': 'fa-university'
         };
-        const paymentIcon = paymentIcons[transaction.paymentMethod] || 'fa-wallet';
-        const paymentMethodName = lang.translate(transaction.paymentMethod || 'cash');
+        const methodKey = (transaction.paymentMethod || 'cash').toLowerCase();
+        const paymentIcon = paymentIcons[methodKey] || 'fa-wallet';
+        const paymentMethodName = transaction.paymentMethod || 'Cash';
 
         return `
             <div class="transaction-item ${transaction.type}" data-id="${transaction.id}">

@@ -431,7 +431,11 @@ class DemoModeManager {
         ).then(confirmed => {
             if (confirmed) {
                 // Navigate to settings
-                window.location.hash = 'settings';
+                if (typeof navigationManager !== 'undefined') {
+                    navigationManager.navigateTo('settings', true);
+                } else {
+                    window.location.hash = 'settings';
+                }
             }
         });
     }

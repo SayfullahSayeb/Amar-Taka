@@ -2352,6 +2352,154 @@ body.modal-open {
     max-width: 100%;
 }
 
+/* ===================================
+   Category & Payment Method Grid Items
+   =================================== */
+
+/* Grid container for categories and payment methods */
+.category-payment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: var(--spacing-lg);
+}
+
+/* Individual grid item (category or payment method) */
+.category-grid-item,
+.payment-method-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.category-grid-item:hover,
+.payment-method-grid-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+/* Icon circle for categories and payment methods */
+.category-icon-circle,
+.payment-method-icon-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: 3px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.category-icon-circle i,
+.payment-method-icon-circle i {
+    font-size: 32px !important;
+    color: white !important;
+    display: inline-block;
+}
+
+.category-icon-circle>i.fas,
+.category-icon-circle>i.far,
+.category-icon-circle>i.fab,
+.payment-method-icon-circle>i.fas,
+.payment-method-icon-circle>i.far,
+.payment-method-icon-circle>i.fab {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+}
+
+/* Fallback for icons */
+.payment-method-icon-circle i::before,
+.category-icon-circle i::before {
+    display: inline-block;
+}
+
+/* Edit button overlay on icon */
+.category-edit-btn-overlay,
+.payment-method-edit-btn-overlay {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.category-edit-btn-overlay:hover,
+.payment-method-edit-btn-overlay:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(41, 117, 111, 0.3);
+}
+
+.category-edit-btn-overlay:hover i,
+.payment-method-edit-btn-overlay:hover i {
+    color: white !important;
+}
+
+.category-edit-btn-overlay i,
+.payment-method-edit-btn-overlay i {
+    font-size: 12px !important;
+    color: var(--primary-color) !important;
+    transition: color 0.2s ease;
+}
+
+/* Label text for categories and payment methods */
+.category-label,
+.payment-method-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ===================================
+   Transaction List Icons
+   =================================== */
+.transaction-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.transaction-icon .category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 20px;
+}
+
+/* Small payment method icon in transaction details */
+.transaction-details i.fas {
+    color: var(--primary-color);
+}
+
 
 
 /* Redesigned Budget Card */

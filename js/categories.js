@@ -120,22 +120,21 @@ class CategoriesManager {
             return;
         }
 
-        let html = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: var(--spacing-lg);">';
+        let html = '<div class="category-payment-grid">';
 
         categories.forEach((category) => {
             // Map emoji to Font Awesome icon
             const iconClass = this.getIconForCategory(category.emoji, category.name);
-            const bgColor = this.getColorForCategory(category.name);
 
             html += `
-                <div class="category-grid-item" data-category-id="${category.id}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 12px; border-radius: 12px; transition: background 0.2s;">
-                    <div style="width: 70px; height: 70px; border-radius: 50%; background: ${bgColor}; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <i class="${iconClass}" style="font-size: 32px; color: white;"></i>
-                        <button class="category-edit-btn-overlay" data-category-id="${category.id}" style="position: absolute; top: -4px; right: -4px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <i class="fas fa-edit" style="font-size: 10px; color: var(--text-secondary);"></i>
+                <div class="category-grid-item" data-category-id="${category.id}">
+                    <div class="category-icon-circle">
+                        <i class="${iconClass}"></i>
+                        <button class="category-edit-btn-overlay" data-category-id="${category.id}">
+                            <i class="fas fa-edit"></i>
                         </button>
                     </div>
-                    <span style="font-size: 13px; font-weight: 500; color: var(--text-primary); text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span class="category-label">
                         ${lang.translate(category.name.toLowerCase())}
                     </span>
                 </div>
@@ -166,7 +165,10 @@ class CategoriesManager {
             '✈️': 'fas fa-plane',
             '🎁': 'fas fa-gift',
             '💊': 'fas fa-pills',
-            '🔧': 'fas fa-tools'
+            '🔧': 'fas fa-tools',
+            '💻': 'fas fa-laptop-code',
+            '🎵': 'fas fa-music',
+            '🎭': 'fas fa-theater-masks'
         };
 
         // Try to match by emoji first
@@ -185,26 +187,18 @@ class CategoriesManager {
         if (nameLower.includes('rent') || nameLower.includes('home')) return 'fas fa-home';
         if (nameLower.includes('salary') || nameLower.includes('income')) return 'fas fa-money-bill-wave';
         if (nameLower.includes('investment')) return 'fas fa-chart-line';
+        if (nameLower.includes('freelance') || nameLower.includes('work')) return 'fas fa-laptop-code';
+        if (nameLower.includes('entertainment') || nameLower.includes('fun')) return 'fas fa-theater-masks';
+        if (nameLower.includes('game') || nameLower.includes('gaming')) return 'fas fa-gamepad';
+        if (nameLower.includes('coffee') || nameLower.includes('cafe')) return 'fas fa-coffee';
+        if (nameLower.includes('movie') || nameLower.includes('film')) return 'fas fa-film';
+        if (nameLower.includes('travel') || nameLower.includes('trip')) return 'fas fa-plane';
+        if (nameLower.includes('gift') || nameLower.includes('present')) return 'fas fa-gift';
+        if (nameLower.includes('medicine') || nameLower.includes('pharmacy')) return 'fas fa-pills';
+        if (nameLower.includes('repair') || nameLower.includes('maintenance')) return 'fas fa-tools';
+        if (nameLower.includes('music') || nameLower.includes('concert')) return 'fas fa-music';
 
         return 'fas fa-circle'; // Default icon
-    }
-
-    getColorForCategory(name) {
-        // Assign colors based on category name
-        const colorMap = {
-            'Food': '#FF6B6B',
-            'Transport': '#4ECDC4',
-            'Bills': '#FFE66D',
-            'Shopping': '#A8E6CF',
-            'Medical': '#FF8B94',
-            'Education': '#95E1D3',
-            'Rent': '#F38181',
-            'Salary': '#34C759',
-            'Investment': '#5AC8FA',
-            'Others': '#8E8E93'
-        };
-
-        return colorMap[name] || '#' + Math.floor(Math.random() * 16777215).toString(16);
     }
 
     setupCategoryEventListeners() {
@@ -253,8 +247,8 @@ class CategoriesManager {
     }
 
     getCategoryEmoji(categoryName) {
-        const category = this.defaultCategories.find(c => c.name === categoryName);
-        return category ? category.emoji : '➕';
+        // Use the robust icon matching logic from getIconForCategory
+        return this.getIconForCategory(null, categoryName);
     }
 
     async editCategory(id) {
@@ -286,8 +280,7 @@ class CategoriesManager {
                 deleteBtn.style.display = 'flex';
             }
 
-            // Close categories modal and open form modal
-            document.getElementById('categories-modal').classList.remove('active');
+            // Don't close categories modal, just open form modal on top
             modal.classList.add('active');
         }
     }

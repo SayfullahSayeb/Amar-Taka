@@ -11,9 +11,37 @@ class PaymentMethodsManager {
     async init() {
         // Check if payment methods exist, if not, add defaults
         const paymentMethods = await db.getAll('paymentMethods');
+
         if (paymentMethods.length === 0) {
+            // No payment methods exist, add defaults
             for (const method of this.defaultPaymentMethods) {
                 await db.add('paymentMethods', method);
+            }
+        } else {
+            // Payment methods exist, but they might be missing icons
+            // Let's fix them by updating with correct icons
+            const iconMap = {
+                'Cash': 'fa-money-bill-wave',
+                'Card': 'fa-credit-card',
+                'Mobile Banking': 'fa-mobile-alt',
+                'Bank': 'fa-university'
+            };
+
+            for (const method of paymentMethods) {
+                // If the method doesn't have an icon, or has an empty/invalid icon
+                if (!method.icon || method.icon === '' || method.icon === 'undefined') {
+                    // Try to match by name and assign the correct icon
+                    if (iconMap[method.name]) {
+                        method.icon = iconMap[method.name];
+                        await db.update('paymentMethods', method);
+                        console.log(`Fixed icon for payment method: ${method.name} -> ${method.icon}`);
+                    } else {
+                        // Default icon for unknown payment methods
+                        method.icon = 'fa-wallet';
+                        await db.update('paymentMethods', method);
+                        console.log(`Set default icon for payment method: ${method.name} -> fa-wallet`);
+                    }
+                }
             }
         }
     }
@@ -70,20 +98,20 @@ class PaymentMethodsManager {
             return;
         }
 
-        let html = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: var(--spacing-lg);">';
+        let html = '<div class="category-payment-grid">';
 
         methods.forEach((method) => {
-            const bgColor = this.getColorForPaymentMethod(method.name);
+            const iconClass = this.getIconClass(method.icon);
 
             html += `
-                <div class="payment-method-grid-item" data-method-id="${method.id}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 12px; border-radius: 12px; transition: background 0.2s;">
-                    <div style="width: 70px; height: 70px; border-radius: 50%; background: ${bgColor}; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <i class="fas ${method.icon || 'fa-wallet'}" style="font-size: 32px; color: white;"></i>
-                        <button class="payment-method-edit-btn-overlay" data-method-id="${method.id}" style="position: absolute; top: -4px; right: -4px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <i class="fas fa-edit" style="font-size: 10px; color: var(--text-secondary);"></i>
+                <div class="payment-method-grid-item" data-method-id="${method.id}">
+                    <div class="payment-method-icon-circle">
+                        <i class="${iconClass}"></i>
+                        <button class="payment-method-edit-btn-overlay" data-method-id="${method.id}">
+                            <i class="fas fa-edit"></i>
                         </button>
                     </div>
-                    <span style="font-size: 13px; font-weight: 500; color: var(--text-primary); text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span class="payment-method-label">
                         ${method.name}
                     </span>
                 </div>
@@ -98,18 +126,13 @@ class PaymentMethodsManager {
         this.setupPaymentMethodEventListeners();
     }
 
-    getColorForPaymentMethod(name) {
-        const colorMap = {
-            'Cash': '#4CAF50',
-            'Card': '#2196F3',
-            'Mobile Banking': '#9C27B0',
-            'Bank': '#FF9800',
-            'PayPal': '#00457C',
-            'Bitcoin': '#F7931A',
-            'Wallet': '#607D8B'
-        };
-
-        return colorMap[name] || '#' + Math.floor(Math.random() * 16777215).toString(16);
+    getIconClass(icon) {
+        // Ensure icon has 'fas' prefix
+        if (!icon) return 'fas fa-wallet';
+        if (icon.startsWith('fas ') || icon.startsWith('far ') || icon.startsWith('fab ')) {
+            return icon;
+        }
+        return `fas ${icon}`;
     }
 
     setupPaymentMethodEventListeners() {
