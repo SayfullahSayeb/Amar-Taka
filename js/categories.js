@@ -84,7 +84,7 @@ class CategoriesManager {
         // Add "Add New Category" option
         const addNewOption = document.createElement('option');
         addNewOption.value = '__add_new__';
-        addNewOption.textContent = `➕ Add New Category`;
+        addNewOption.textContent = `➕ Category`;
         selectElement.appendChild(addNewOption);
 
         // Initialize custom select if settingsManager is available

@@ -145,34 +145,34 @@
 
         <!-- Transactions Page -->
         <div id="transactions-page" class="page">
-            <header class="page-header">
-                <h1 class="page-title" data-lang="transactions">Transactions</h1>
+            <header class="page-header"
+                style="display: flex; flex-direction: column; gap: 8px; padding: 20px 20px 16px;">
+                <h1 class="page-title" data-lang="transactions" style="margin: 0; color: white; font-size: 26px; align-self:normal;">
+                    Transactions</h1>
+                <!-- Search Box in Header -->
+                <div class="search-box" style="margin: 0;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search transactions..."
+                        data-lang-placeholder="searchTransactions">
+                </div>
             </header>
 
             <div class="page-content">
                 <!-- Page Navigation Buttons -->
-                <div class="page-nav-buttons" style="display: flex; gap: 12px; margin-bottom: 20px;">
+                <div class="page-nav-buttons" style="display: flex; gap: 6px; margin-bottom: 20px;">
                     <button class="btn btn-primary" style="flex: 1;" disabled>
-                        <i class="fas fa-wallet"></i>
                         <span data-lang="transactions">Transactions</span>
                     </button>
                     <button class="btn btn-secondary" id="goto-analysis-btn" style="flex: 1;">
-                        <i class="fas fa-chart-line"></i>
                         <span data-lang="analysis">Analysis</span>
                     </button>
                     <button class="btn btn-secondary" id="goto-accounts-btn" style="flex: 1;">
-                        <i class="fas fa-university"></i>
                         <span>Accounts</span>
                     </button>
                 </div>
 
-                <!-- Search and Filter -->
+                <!-- Filter Row Only -->
                 <div class="search-filter-container">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="search-input" placeholder="Search transactions..."
-                            data-lang-placeholder="searchTransactions">
-                    </div>
                     <div class="filter-row">
                         <div class="filter-buttons">
                             <button class="btn-filter active" data-filter="all" data-lang="all">All</button>
@@ -206,17 +206,14 @@
 
             <div class="page-content">
                 <!-- Page Navigation Buttons -->
-                <div class="page-nav-buttons" style="display: flex; gap: 12px; margin-bottom: 20px;">
+                <div class="page-nav-buttons" style="display: flex; gap: 6px; margin-bottom: 20px;">
                     <button class="btn btn-secondary" id="goto-transactions-from-analysis-btn" style="flex: 1;">
-                        <i class="fas fa-wallet"></i>
                         <span data-lang="transactions">Transactions</span>
                     </button>
                     <button class="btn btn-primary" style="flex: 1;" disabled>
-                        <i class="fas fa-chart-line"></i>
                         <span data-lang="analysis">Analysis</span>
                     </button>
                     <button class="btn btn-secondary" id="goto-accounts-from-analysis-btn" style="flex: 1;">
-                        <i class="fas fa-university"></i>
                         <span>Accounts</span>
                     </button>
                 </div>
@@ -270,17 +267,14 @@
 
             <div class="page-content">
                 <!-- Page Navigation Buttons -->
-                <div class="page-nav-buttons" style="display: flex; gap: 12px; margin-bottom: 20px;">
+                <div class="page-nav-buttons" style="display: flex; gap: 6px; margin-bottom: 20px;">
                     <button class="btn btn-secondary" id="goto-transactions-from-accounts-btn" style="flex: 1;">
-                        <i class="fas fa-wallet"></i>
                         <span data-lang="transactions">Transactions</span>
                     </button>
                     <button class="btn btn-secondary" id="goto-analysis-from-accounts-btn" style="flex: 1;">
-                        <i class="fas fa-chart-line"></i>
                         <span data-lang="analysis">Analysis</span>
                     </button>
                     <button class="btn btn-primary" style="flex: 1;" disabled>
-                        <i class="fas fa-university"></i>
                         <span>Accounts</span>
                     </button>
                 </div>
@@ -569,15 +563,12 @@
                     <label data-lang="type" style="text-align: left;">Type</label>
                     <div class="type-toggle">
                         <button type="button" class="type-btn active" data-type="expense">
-                            <i class="fas fa-minus-circle"></i>
                             <span data-lang="expense">Expense</span>
                         </button>
                         <button type="button" class="type-btn" data-type="income">
-                            <i class="fas fa-plus-circle"></i>
                             <span data-lang="income">Income</span>
                         </button>
                         <button type="button" class="type-btn" data-type="transfer">
-                            <i class="fas fa-exchange-alt"></i>
                             <span data-lang="transfer">Transfer</span>
                         </button>
                     </div>
@@ -590,7 +581,7 @@
 
                 <!-- Transfer-specific fields (shown only for transfers) -->
                 <div id="transfer-fields" style="display: none;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div class="form-group">
                             <label for="transfer-from" style="text-align: left;">From Account</label>
                             <select id="transfer-from" class="setting-select">
@@ -608,7 +599,7 @@
                 </div>
 
                 <!-- Category and Payment Method in same row (hidden for transfers) -->
-                <div id="normal-transaction-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div id="normal-transaction-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <div class="form-group">
                         <label for="category" data-lang="category" style="text-align: left;">Category</label>
                         <select id="category" class="setting-select" required>

@@ -333,7 +333,7 @@ input {
 }
 
 .page-content {
-    padding: var(--spacing-md);
+    padding: 0 16px 16px 16px;
 }
 
 /* ===================================
@@ -805,6 +805,22 @@ input {
    Transactions
    =================================== */
 
+/* Page Navigation Buttons */
+.page-nav-buttons .btn {
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    padding: 10px 8px;
+}
+
+.page-nav-buttons .btn span {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
 .search-filter-container {
     margin-bottom: var(--spacing-md);
 }
@@ -814,7 +830,7 @@ input {
     align-items: center;
     background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 6px 12px;
     margin-bottom: var(--spacing-sm);
     box-shadow: 0 2px 8px var(--shadow-color);
 }
@@ -822,15 +838,18 @@ input {
 .search-box i {
     color: var(--text-tertiary);
     margin-right: var(--spacing-sm);
+    font-size: 14px;
 }
 
 .search-box input {
     flex: 1;
     border: none;
     background: none;
-    font-size: var(--font-size-md);
+    font-size: 14px;
     color: var(--text-primary);
     outline: none;
+    height: 36px;
+    width: 280px !important;
 }
 
 .filter-row {
@@ -869,12 +888,13 @@ input {
 }
 
 .sort-dropdown {
-    min-width: 120px;
+    min-width: 100px;
+    max-width: 100px;
 }
 
 .sort-select {
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 8px 8px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     background-color: var(--bg-secondary);
@@ -1819,9 +1839,10 @@ body.modal-open {
     background-color: var(--bg-secondary);
     border-radius: var(--radius-xl);
     max-width: 500px;
-    width: 90%;
+    width: 95%;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     animation: slideUp var(--transition-normal);
     position: relative;
@@ -1862,7 +1883,7 @@ body.modal-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-md);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -1898,7 +1919,7 @@ body.modal-open {
 }
 
 .modal-body {
-    padding: var(--spacing-lg) var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-md);
 }
 
 .modal-footer {
@@ -1913,7 +1934,7 @@ body.modal-open {
    =================================== */
 
 .form-group {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 12px;
 }
 
 .form-group label {
@@ -1928,7 +1949,7 @@ body.modal-open {
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 10px 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     background-color: var(--bg-tertiary);
@@ -1936,6 +1957,9 @@ body.modal-open {
     font-size: var(--font-size-md);
     font-family: var(--font-family);
     transition: border-color var(--transition-fast);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .form-group input:focus,
@@ -1947,23 +1971,22 @@ body.modal-open {
 
 .type-toggle {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: 6px;
 }
 
 .type-btn {
     flex: 1;
-    padding: var(--spacing-md);
+    padding: 12px;
     border: 2px solid var(--border-color);
     background-color: var(--bg-tertiary);
     color: var(--text-secondary);
     border-radius: var(--radius-md);
-    font-size: var(--font-size-md);
+    font-size: 15px;
     font-weight: var(--font-weight-medium);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-sm);
     transition: all var(--transition-fast);
 }
 
@@ -2265,15 +2288,6 @@ body.modal-open {
     text-align: center;
 }
 
-.transaction-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-md) var(--spacing-lg);
-    background-color: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color var(--transition-fast);
-}
 
 .transaction-item:hover {
     background-color: var(--bg-tertiary);
@@ -2353,6 +2367,7 @@ body.modal-open {
     max-height: 60vh;
     overflow-y: auto;
     padding: 0;
+    overflow-x: hidden;
 }
 
 /* Category Form Modal - Prevent Horizontal Scroll */
@@ -2369,8 +2384,8 @@ body.modal-open {
 .category-payment-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    padding: var(--spacing-lg);
+    gap: 12px;
+    padding: 12px;
 }
 
 /* Individual grid item (category or payment method) */
@@ -2379,11 +2394,11 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
-    padding: 12px;
+    padding: 8px;
     border-radius: 12px;
-    border: 2px solid var(--primary-color);
+    border: 1.5px solid var(--primary-color);
     transition: background 0.2s, transform 0.2s;
 }
 
@@ -2396,11 +2411,11 @@ body.modal-open {
 /* Icon circle for categories and payment methods */
 .category-icon-circle,
 .payment-method-icon-circle {
-    width: 70px;
-    height: 70px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: var(--primary-color);
-    border: 3px solid var(--primary-color);
+    border: 2.5px solid var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2409,7 +2424,7 @@ body.modal-open {
 
 .category-icon-circle i,
 .payment-method-icon-circle i {
-    font-size: 32px !important;
+    font-size: 26px !important;
     color: white !important;
     display: inline-block;
 }
@@ -2434,10 +2449,10 @@ body.modal-open {
 .category-edit-btn-overlay,
 .payment-method-edit-btn-overlay {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 28px;
-    height: 28px;
+    top: -4px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: white;
     border: 2px solid var(--primary-color);
@@ -2465,7 +2480,7 @@ body.modal-open {
 
 .category-edit-btn-overlay i,
 .payment-method-edit-btn-overlay i {
-    font-size: 12px !important;
+    font-size: 11px !important;
     color: var(--primary-color) !important;
     transition: color 0.2s ease;
 }
@@ -2473,7 +2488,7 @@ body.modal-open {
 /* Label text for categories and payment methods */
 .category-label,
 .payment-method-label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-primary);
     text-align: center;
@@ -3084,6 +3099,7 @@ body.modal-open {
     max-height: 200px;
     opacity: 1;
     overflow-y: auto;
+    margin-right: 10px;
 }
 
 /* Dropdown opens upward when near bottom */
@@ -3211,7 +3227,7 @@ body.modal-open {
 .reset-modal-content {
     max-width: 470px !important;
     text-align: center;
-    padding: 40px 30px 30px !important;
+    padding: 24px 20px 20px !important;
     border-radius: 20px !important;
 }
 
@@ -4868,14 +4884,13 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 12px;
 }
 
 .account-item {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 14px;
     background-color: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     transition: all var(--transition-fast);
@@ -4940,4 +4955,94 @@ body.modal-open {
 .account-menu-btn:hover {
     background-color: var(--bg-tertiary);
     color: var(--text-primary);
+}
+
+/* ===================================
+   Custom Select Dropdown
+   =================================== */
+
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-select-selected {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 8px 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+}
+
+.custom-select-selected:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+.custom-select-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.custom-select-arrow {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    transition: transform var(--transition-fast);
+    margin-left: 6px;
+    flex-shrink: 0;
+}
+
+.custom-select-wrapper.open .custom-select-arrow {
+    transform: rotate(180deg);
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.custom-select-wrapper.open .custom-select-options {
+    display: block;
+}
+
+.custom-select-wrapper.dropup .custom-select-options {
+    top: auto;
+    bottom: calc(100% + 4px);
+}
+
+.custom-select-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+}
+
+.custom-select-option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.custom-select-option.selected {
+    background-color: var(--primary-color);
+    color: white;
 }

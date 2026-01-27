@@ -80,7 +80,7 @@ class PaymentMethodsManager {
         // Add "Add New Payment Method" option
         const addNewOption = document.createElement('option');
         addNewOption.value = '__add_new_payment__';
-        addNewOption.textContent = `➕ Add Payment Method`;
+        addNewOption.textContent = `➕  Payment`;
         selectElement.appendChild(addNewOption);
 
         // Initialize custom select if settingsManager is available
