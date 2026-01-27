@@ -341,11 +341,8 @@ class CategoryFormHandler {
     }
 
     setupEventListeners() {
-        // Add Category button
-        const addBtn = document.getElementById('add-category-btn');
-        if (addBtn) {
-            addBtn.addEventListener('click', () => this.openAddModal());
-        }
+        // Add Category button logic is handled in settings.js setupCategoryTabs
+        // Do not add a duplicate listener here
 
         // Close modal button
         const closeBtn = document.getElementById('close-category-form-modal');

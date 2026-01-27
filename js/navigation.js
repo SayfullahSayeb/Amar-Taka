@@ -23,16 +23,18 @@ class NavigationManager {
         };
 
         this.pageButtonsHandler = (e) => {
-            const target = e.target.closest('#goto-analysis-btn, #goto-transactions-btn');
+            const target = e.target.closest('#goto-analysis-btn, #goto-transactions-btn, #goto-accounts-btn, #goto-transactions-from-accounts-btn, #goto-analysis-from-accounts-btn, #goto-transactions-from-analysis-btn, #goto-accounts-from-analysis-btn');
 
             if (target) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (target.id === 'goto-analysis-btn') {
+                if (target.id === 'goto-analysis-btn' || target.id === 'goto-analysis-from-accounts-btn') {
                     this.navigateTo('analysis', true);
-                } else if (target.id === 'goto-transactions-btn') {
+                } else if (target.id === 'goto-transactions-btn' || target.id === 'goto-transactions-from-accounts-btn' || target.id === 'goto-transactions-from-analysis-btn') {
                     this.navigateTo('transactions', true);
+                } else if (target.id === 'goto-accounts-btn' || target.id === 'goto-accounts-from-analysis-btn') {
+                    this.navigateTo('accounts', true);
                 }
             }
         };
@@ -156,7 +158,7 @@ class NavigationManager {
 
 
     isValidPage(page) {
-        const validPages = ['home', 'transactions', 'analysis', 'goals', 'settings'];
+        const validPages = ['home', 'transactions', 'analysis', 'accounts', 'goals', 'settings'];
         return validPages.includes(page);
     }
 
@@ -241,6 +243,11 @@ class NavigationManager {
                 case 'analysis':
                     if (typeof analysisManager !== 'undefined' && analysisManager.render) {
                         await analysisManager.render();
+                    }
+                    break;
+                case 'accounts':
+                    if (typeof accountsManager !== 'undefined' && accountsManager.render) {
+                        await accountsManager.render();
                     }
                     break;
                 case 'goals':

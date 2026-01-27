@@ -1660,7 +1660,6 @@ input {
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: space-around;
-    padding: var(--spacing-sm) 0;
     z-index: var(--z-nav);
     box-shadow: 0 -2px 10px var(--shadow-color);
 }
@@ -1981,6 +1980,12 @@ body.modal-open {
 .type-btn.active[data-type="income"] {
     background-color: var(--success-color);
     border-color: var(--success-color);
+    color: white;
+}
+
+.type-btn.active[data-type="transfer"] {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
 }
 
@@ -2322,6 +2327,10 @@ body.modal-open {
 
 .transaction-amount.expense {
     color: var(--text-primary);
+}
+
+.transaction-amount.transfer {
+    color: var(--primary-color);
 }
 
 /* Confirmation Modal */
@@ -4849,4 +4858,86 @@ body.modal-open {
         padding: 6px 12px;
         font-size: 13px;
     }
+}
+
+/* ===================================
+   Accounts Page
+   =================================== */
+
+.accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+}
+
+.account-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
+}
+
+.account-item:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.account-icon-wrapper {
+    flex-shrink: 0;
+}
+
+.account-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 20px;
+}
+
+.account-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.account-name {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+}
+
+.account-balance {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+.account-menu-btn {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background-color: transparent;
+    color: var(--text-tertiary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-menu-btn:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
 }

@@ -160,6 +160,44 @@ class HomeManager {
             };
 
             container.innerHTML = recentTransactions.map(transaction => {
+                // Handle transfer transactions differently
+                if (transaction.type === 'transfer') {
+                    // Format date
+                    const transDate = new Date(transaction.date);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+
+                    let dateStr;
+                    if (transDate.toDateString() === today.toDateString()) {
+                        dateStr = 'Today';
+                    } else if (transDate.toDateString() === yesterday.toDateString()) {
+                        dateStr = 'Yesterday';
+                    } else {
+                        dateStr = transDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    }
+
+                    return `
+                        <div class="transaction-item transfer">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <span class="category-icon"><i class="fas fa-exchange-alt"></i></span>
+                                </div>
+                                <div class="transaction-details">
+                                    <span class="category-name">Transfer <span style="font-size: 13px; font-weight: 400; color: var(--text-tertiary);">${transaction.transferFrom} → ${transaction.transferTo}</span></span>
+                                    <span class="transaction-note" style="font-size: var(--font-size-sm); color: var(--text-tertiary);">
+                                        ${dateStr}
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="transaction-amount transfer">
+                                ${Utils.formatCurrency(transaction.amount, this.currency)}
+                            </span>
+                        </div>
+                    `;
+                }
+
+                // Handle normal income/expense transactions
                 // Get icon class with fallback
                 const iconClass = categoriesManager.getCategoryEmoji(transaction.category) || 'fas fa-plus-circle';
 

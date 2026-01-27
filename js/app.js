@@ -39,6 +39,7 @@ class App {
             await homeManager.init();
             await transactionsManager.init();
             await analysisManager.init();
+            await accountsManager.init();
             await budgetManager.init();
             await goalsManager.init();
             await exportManager.init();

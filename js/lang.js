@@ -38,14 +38,15 @@ const translations = {
         oldest: 'Oldest',
         highest: 'Highest',
         lowest: 'Lowest',
+        transfer: 'Transfer',
         type: 'Type',
         amount: 'Amount',
         category: 'Category',
-        paymentMethod: 'Payment Method',
+        paymentMethod: 'Account',
         date: 'Date',
         note: 'Note (Optional)',
 
-        // Payment Methods
+        // Accounts
         cash: 'Cash',
         card: 'Card',
         mobileBanking: 'Mobile Banking',
@@ -253,14 +254,15 @@ const translations = {
         oldest: 'পুরাতন',
         highest: 'সর্বোচ্চ',
         lowest: 'সর্বনিম্ন',
+        transfer: 'ট্রান্সফার',
         type: 'ধরন',
         amount: 'পরিমাণ',
         category: 'বিভাগ',
-        paymentMethod: 'পেমেন্ট পদ্ধতি',
+        paymentMethod: 'অ্যাকাউন্ট',
         date: 'তারিখ',
         note: 'নোট (ঐচ্ছিক)',
 
-        // Payment Methods
+        // Accounts
         cash: 'নগদ',
         card: 'কার্ড',
         mobileBanking: 'মোবাইল ব্যাংকিং',

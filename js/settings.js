@@ -260,7 +260,7 @@ class SettingsManager {
         }
     }
 
-    async openCategoriesModal() {
+    async openCategoriesModal(initialTab = 'expense') {
         const modal = document.getElementById('categories-modal');
 
         // Render categories in their respective tabs
@@ -272,8 +272,8 @@ class SettingsManager {
         // Setup tab switching
         this.setupCategoryTabs();
 
-        // Show expense tab by default
-        this.switchCategoryTab('expense');
+        // Show requested tab (default to expense)
+        this.switchCategoryTab(initialTab);
 
         modal.classList.add('active');
     }
@@ -294,7 +294,7 @@ class SettingsManager {
                 } else if (tab === 'income') {
                     addButtonText.textContent = 'Add Income Category';
                 } else if (tab === 'payment') {
-                    addButtonText.textContent = 'Add Payment Method';
+                    addButtonText.textContent = 'Add Account';
                 }
             });
         });
@@ -344,6 +344,12 @@ class SettingsManager {
     closeCategoriesModal() {
         const modal = document.getElementById('categories-modal');
         modal.classList.remove('active');
+
+        // Check if we are on the accounts page and refresh it
+        const hash = window.location.hash.slice(1);
+        if (hash === 'accounts' && typeof accountsManager !== 'undefined' && accountsManager.render) {
+            accountsManager.render();
+        }
     }
 
     async openPaymentMethodsModal() {

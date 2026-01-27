@@ -160,6 +160,10 @@
                         <i class="fas fa-chart-line"></i>
                         <span data-lang="analysis">Analysis</span>
                     </button>
+                    <button class="btn btn-secondary" id="goto-accounts-btn" style="flex: 1;">
+                        <i class="fas fa-university"></i>
+                        <span>Accounts</span>
+                    </button>
                 </div>
 
                 <!-- Search and Filter -->
@@ -181,6 +185,7 @@
                                 <option value="oldest" data-lang="oldest">Oldest</option>
                                 <option value="highest" data-lang="highest">Highest</option>
                                 <option value="lowest" data-lang="lowest">Lowest</option>
+                                <option value="transfer" data-lang="transfer">Transfer</option>
                             </select>
                         </div>
                     </div>
@@ -202,13 +207,17 @@
             <div class="page-content">
                 <!-- Page Navigation Buttons -->
                 <div class="page-nav-buttons" style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <button class="btn btn-secondary" id="goto-transactions-btn" style="flex: 1;">
+                    <button class="btn btn-secondary" id="goto-transactions-from-analysis-btn" style="flex: 1;">
                         <i class="fas fa-wallet"></i>
                         <span data-lang="transactions">Transactions</span>
                     </button>
                     <button class="btn btn-primary" style="flex: 1;" disabled>
                         <i class="fas fa-chart-line"></i>
                         <span data-lang="analysis">Analysis</span>
+                    </button>
+                    <button class="btn btn-secondary" id="goto-accounts-from-analysis-btn" style="flex: 1;">
+                        <i class="fas fa-university"></i>
+                        <span>Accounts</span>
                     </button>
                 </div>
 
@@ -249,6 +258,45 @@
                 </div>
 
 
+            </div>
+        </div>
+
+
+        <!-- Accounts Page -->
+        <div id="accounts-page" class="page">
+            <header class="page-header">
+                <h1 class="page-title">Accounts</h1>
+            </header>
+
+            <div class="page-content">
+                <!-- Page Navigation Buttons -->
+                <div class="page-nav-buttons" style="display: flex; gap: 12px; margin-bottom: 20px;">
+                    <button class="btn btn-secondary" id="goto-transactions-from-accounts-btn" style="flex: 1;">
+                        <i class="fas fa-wallet"></i>
+                        <span data-lang="transactions">Transactions</span>
+                    </button>
+                    <button class="btn btn-secondary" id="goto-analysis-from-accounts-btn" style="flex: 1;">
+                        <i class="fas fa-chart-line"></i>
+                        <span data-lang="analysis">Analysis</span>
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1;" disabled>
+                        <i class="fas fa-university"></i>
+                        <span>Accounts</span>
+                    </button>
+                </div>
+
+                <!-- Accounts List -->
+                <div id="accounts-list" class="accounts-list">
+                    <!-- Payment methods with balances will be rendered here -->
+                </div>
+
+                <!-- Manage Accounts Button -->
+                <div style="padding: 0 var(--spacing-lg) var(--spacing-lg); display: flex; justify-content: center;">
+                    <button class="btn btn-secondary" id="manage-accounts-btn" style="width: 100%; max-width: 300px;">
+                        <i class="fas fa-cog"></i>
+                        <span>Manage Accounts</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -528,6 +576,10 @@
                             <i class="fas fa-plus-circle"></i>
                             <span data-lang="income">Income</span>
                         </button>
+                        <button type="button" class="type-btn" data-type="transfer">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span data-lang="transfer">Transfer</span>
+                        </button>
                     </div>
                 </div>
 
@@ -536,8 +588,27 @@
                     <input type="number" id="amount" required min="0" step="0.01" placeholder="0.00">
                 </div>
 
-                <!-- Category and Payment Method in same row -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <!-- Transfer-specific fields (shown only for transfers) -->
+                <div id="transfer-fields" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="transfer-from" style="text-align: left;">From Account</label>
+                            <select id="transfer-from" class="setting-select">
+                                <!-- Accounts will be populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="transfer-to" style="text-align: left;">To Account</label>
+                            <select id="transfer-to" class="setting-select">
+                                <!-- Accounts will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category and Payment Method in same row (hidden for transfers) -->
+                <div id="normal-transaction-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label for="category" data-lang="category" style="text-align: left;">Category</label>
                         <select id="category" class="setting-select" required>
@@ -546,8 +617,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="payment-method" data-lang="paymentMethod" style="text-align: left;">Payment
-                            Method</label>
+                        <label for="payment-method" data-lang="paymentMethod" style="text-align: left;">Account</label>
                         <select id="payment-method" class="setting-select">
                             <option value="cash" data-lang="cash">Cash</option>
                             <option value="card" data-lang="card">Card</option>
@@ -632,7 +702,7 @@
                 </button>
                 <button class="category-tab-btn" data-tab="payment"
                     style="flex: 1; padding: 12px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text-tertiary); transition: all 0.3s ease;">
-                    Payment
+                    Accounts
                 </button>
             </div>
 
@@ -748,20 +818,20 @@
     <div id="payment-methods-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Manage Payment Methods</h2>
+                <h2>Manage Accounts</h2>
                 <button class="btn-close" id="close-payment-methods-modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body categories-modal-body">
                 <div id="payment-methods-list">
-                    <!-- Payment methods will be rendered here -->
+                    <!-- Accounts will be rendered here -->
                 </div>
             </div>
             <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: var(--spacing-lg);">
                 <button class="btn btn-primary" id="add-payment-method-btn" style="width: 100%;">
                     <i class="fas fa-plus"></i>
-                    <span>Add Payment Method</span>
+                    <span>Add Account</span>
                 </button>
             </div>
         </div>
@@ -775,14 +845,14 @@
                 <i class="fas fa-times"></i>
             </button>
 
-            <h2 class="reset-modal-title" id="payment-method-form-title">Add Payment Method</h2>
-            <p class="reset-modal-text">Create a custom payment method for your transactions.</p>
+            <h2 class="reset-modal-title" id="payment-method-form-title">Add Account</h2>
+            <p class="reset-modal-text">Create a custom account for your transactions.</p>
 
             <form id="payment-method-form" style="width: 100%; margin-top: 20px;">
                 <div class="form-group">
-                    <label for="payment-method-name" style="text-align: left;">Payment Method Name</label>
+                    <label for="payment-method-name" style="text-align: left;">Account Name</label>
                     <input type="text" id="payment-method-name" required maxlength="30"
-                        placeholder="Enter payment method name">
+                        placeholder="Enter account name">
                 </div>
 
                 <div class="form-group">
@@ -1464,6 +1534,7 @@
             'js/payment-methods.js',
             'js/home.js',
             'js/transactions.js',
+            'js/accounts.js',
             'js/analysis.js',
             'js/budget.js',
             'js/export.js',

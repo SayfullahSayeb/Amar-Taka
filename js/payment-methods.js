@@ -168,7 +168,7 @@ class PaymentMethodsManager {
         const deleteBtn = document.getElementById('delete-payment-method-btn');
 
         if (modal && title && nameInput && iconSelect && idInput) {
-            title.textContent = 'Edit Payment Method';
+            title.textContent = 'Edit Account';
             nameInput.value = method.name;
             iconSelect.value = method.icon || 'fa-wallet';
             idInput.value = method.id;
@@ -189,30 +189,39 @@ class PaymentMethodsManager {
         if (!method) return;
 
         const confirmed = await Utils.confirm(
-            `This will permanently delete "${method.name}". Transactions using this payment method will not be affected.`,
-            'Delete Payment Method',
+            `This will permanently delete "${method.name}". Transactions using this account will not be affected.`,
+            'Delete Account',
             'Delete'
         );
 
         if (confirmed) {
             try {
                 await this.deletePaymentMethod(id);
-                Utils.showToast('Payment method deleted successfully');
+                Utils.showToast('Account deleted successfully');
 
                 // Close the edit modal
                 document.getElementById('payment-method-form-modal').classList.remove('active');
 
-                // Reopen the payment methods list modal
-                const paymentMethodsModal = document.getElementById('payment-methods-modal');
-                if (paymentMethodsModal) {
-                    paymentMethodsModal.classList.add('active');
+                // Reopen the categories modal on the Accounts tab
+                const categoriesModal = document.getElementById('categories-modal');
+                if (categoriesModal) {
+                    categoriesModal.classList.add('active');
+                    // Switch to payment methods tab
+                    if (typeof settingsManager !== 'undefined' && settingsManager.switchCategoryTab) {
+                        settingsManager.switchCategoryTab('payment');
+                    }
                 }
 
                 // Refresh the payment methods list
                 await this.renderPaymentMethodsList();
+
+                // Also refresh the accounts page if it's active
+                if (typeof accountsManager !== 'undefined' && accountsManager.render) {
+                    await accountsManager.render();
+                }
             } catch (error) {
                 console.error('Error deleting payment method:', error);
-                Utils.showToast('Error deleting payment method');
+                Utils.showToast('Error deleting account');
             }
         }
     }
@@ -277,7 +286,7 @@ class PaymentMethodFormHandler {
     openAddModal() {
         const title = document.getElementById('payment-method-form-title');
         if (title) {
-            title.textContent = 'Add Payment Method';
+            title.textContent = 'Add Account';
         }
 
         this.resetForm();
@@ -330,7 +339,7 @@ class PaymentMethodFormHandler {
 
         // Validate
         if (!methodData.name) {
-            Utils.showToast('Please enter a payment method name');
+            Utils.showToast('Please enter an account name');
             return;
         }
 

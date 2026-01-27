@@ -28,6 +28,32 @@ class TransactionsManager {
         await this.render();
     }
 
+    async calculatePaymentMethodBalance(paymentMethodName, excludeTransactionId = null) {
+        const transactions = await db.getAll('transactions');
+        let balance = 0;
+
+        transactions.forEach(transaction => {
+            // Skip the transaction being edited
+            if (excludeTransactionId && transaction.id === excludeTransactionId) {
+                return;
+            }
+
+            if (transaction.type === 'income' && transaction.paymentMethod === paymentMethodName) {
+                balance += transaction.amount;
+            } else if (transaction.type === 'expense' && transaction.paymentMethod === paymentMethodName) {
+                balance -= transaction.amount;
+            } else if (transaction.type === 'transfer') {
+                if (transaction.transferFrom === paymentMethodName) {
+                    balance -= transaction.amount;
+                } else if (transaction.transferTo === paymentMethodName) {
+                    balance += transaction.amount;
+                }
+            }
+        });
+
+        return balance;
+    }
+
     setupEventListeners() {
         // Search input
         const searchInput = document.getElementById('search-input');
@@ -42,6 +68,14 @@ class TransactionsManager {
                 document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 this.currentFilter = e.target.dataset.filter;
+
+                // Reset sort dropdown to newest when changing filter
+                const sortSelect = document.getElementById('sort-select');
+                if (sortSelect && sortSelect.value === 'transfer') {
+                    sortSelect.value = 'newest';
+                    this.sortOrder = 'newest';
+                }
+
                 this.render();
             });
         });
@@ -49,7 +83,22 @@ class TransactionsManager {
         // Sort dropdown
         const sortSelect = document.getElementById('sort-select');
         sortSelect.addEventListener('change', (e) => {
-            this.sortOrder = e.target.value;
+            const value = e.target.value;
+
+            if (value === 'transfer') {
+                // Set filter to transfer
+                this.currentFilter = 'transfer';
+                this.sortOrder = 'newest'; // Reset to newest
+
+                // Activate "All" filter button
+                document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+                const allBtn = document.querySelector('.btn-filter[data-filter="all"]');
+                if (allBtn) allBtn.classList.add('active');
+            } else {
+                // Normal sort option
+                this.sortOrder = value;
+            }
+
             this.render();
         });
 
@@ -64,7 +113,13 @@ class TransactionsManager {
                 document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 const type = e.currentTarget.dataset.type;
-                this.updateCategoryOptions(type);
+
+                // Toggle transfer fields visibility
+                this.toggleTransferFields(type);
+
+                if (type !== 'transfer') {
+                    this.updateCategoryOptions(type);
+                }
             });
         });
 
@@ -167,6 +222,147 @@ class TransactionsManager {
         });
     }
 
+    toggleTransferFields(type) {
+        const transferFields = document.getElementById('transfer-fields');
+        const normalFields = document.getElementById('normal-transaction-fields');
+        const categorySelect = document.getElementById('category');
+
+        if (type === 'transfer') {
+            // Show transfer fields, hide normal fields
+            if (transferFields) transferFields.style.display = 'block';
+            if (normalFields) normalFields.style.display = 'none';
+            if (categorySelect) categorySelect.removeAttribute('required');
+
+            // Populate transfer dropdowns
+            this.updateTransferPaymentMethods();
+
+            // Set up event listeners for dynamic filtering
+            this.setupTransferChangeListeners();
+        } else {
+            // Show normal fields, hide transfer fields
+            if (transferFields) transferFields.style.display = 'none';
+            if (normalFields) normalFields.style.display = 'grid';
+            if (categorySelect) categorySelect.setAttribute('required', 'required');
+        }
+    }
+
+    setupTransferChangeListeners() {
+        // Remove old listeners if they exist
+        if (this.transferFromListener) {
+            document.removeEventListener('change', this.transferFromListener);
+        }
+        if (this.transferToListener) {
+            document.removeEventListener('change', this.transferToListener);
+        }
+
+        // Create new listeners
+        this.transferFromListener = async (e) => {
+            if (e.target.id === 'transfer-from') {
+                const transferFrom = document.getElementById('transfer-from');
+                const transferTo = document.getElementById('transfer-to');
+                if (transferFrom && transferTo) {
+                    await this.updateTransferPaymentMethods(transferFrom.value, transferTo.value);
+                }
+            }
+        };
+
+        this.transferToListener = async (e) => {
+            if (e.target.id === 'transfer-to') {
+                const transferFrom = document.getElementById('transfer-from');
+                const transferTo = document.getElementById('transfer-to');
+                if (transferFrom && transferTo) {
+                    await this.updateTransferPaymentMethods(transferFrom.value, transferTo.value);
+                }
+            }
+        };
+
+        // Add listeners to document (event delegation)
+        document.addEventListener('change', this.transferFromListener);
+        document.addEventListener('change', this.transferToListener);
+    }
+
+    async updateTransferPaymentMethods(selectedFrom = null, selectedTo = null) {
+        const transferFrom = document.getElementById('transfer-from');
+        const transferTo = document.getElementById('transfer-to');
+
+        if (!transferFrom || !transferTo) return;
+
+        // Get all payment methods
+        const methods = await paymentMethodsManager.getPaymentMethods();
+
+        if (methods.length < 2) {
+            // Need at least 2 accounts for transfer
+            Utils.showToast('Please add at least 2 accounts to make a transfer');
+            return;
+        }
+
+        // Store current selections if not provided
+        let currentFrom = selectedFrom || transferFrom.value;
+        let currentTo = selectedTo || transferTo.value;
+
+        // On first load, ensure different defaults
+        if (!currentFrom && !currentTo) {
+            currentFrom = methods[0].name;
+            currentTo = methods[1].name;
+        } else if (currentFrom === currentTo) {
+            // If somehow they're the same, fix it
+            const otherMethod = methods.find(m => m.name !== currentFrom);
+            if (otherMethod) {
+                currentTo = otherMethod.name;
+            }
+        }
+
+        // Populate FROM dropdown (exclude currently selected TO)
+        transferFrom.innerHTML = '';
+        methods.forEach(method => {
+            if (method.name !== currentTo) {
+                const option = document.createElement('option');
+                option.value = method.name;
+                option.textContent = method.name;
+                transferFrom.appendChild(option);
+            }
+        });
+
+        // Populate TO dropdown (exclude currently selected FROM)
+        transferTo.innerHTML = '';
+        methods.forEach(method => {
+            if (method.name !== currentFrom) {
+                const option = document.createElement('option');
+                option.value = method.name;
+                option.textContent = method.name;
+                transferTo.appendChild(option);
+            }
+        });
+
+        // Set selections
+        if (currentFrom && transferFrom.querySelector(`option[value="${currentFrom}"]`)) {
+            transferFrom.value = currentFrom;
+        }
+        if (currentTo && transferTo.querySelector(`option[value="${currentTo}"]`)) {
+            transferTo.value = currentTo;
+        }
+
+        // Remove old custom select wrappers
+        const fromWrapper = transferFrom.nextElementSibling;
+        const toWrapper = transferTo.nextElementSibling;
+        if (fromWrapper && fromWrapper.classList && fromWrapper.classList.contains('custom-select-wrapper')) {
+            fromWrapper.remove();
+        }
+        if (toWrapper && toWrapper.classList && toWrapper.classList.contains('custom-select-wrapper')) {
+            toWrapper.remove();
+        }
+
+        // Show original selects temporarily
+        transferFrom.style.display = '';
+        transferTo.style.display = '';
+
+        // Initialize custom selects if available
+        if (typeof settingsManager !== 'undefined' && settingsManager.createCustomSelect) {
+            settingsManager.createCustomSelect(transferFrom);
+            settingsManager.createCustomSelect(transferTo);
+        }
+    }
+
     async render() {
         const container = document.getElementById('transaction-list');
         let transactions = await db.getAll('transactions');
@@ -265,6 +461,11 @@ class TransactionsManager {
     }
 
     renderTransaction(transaction) {
+        // Handle transfer transactions differently
+        if (transaction.type === 'transfer') {
+            return this.renderTransfer(transaction);
+        }
+
         const iconClass = categoriesManager.getCategoryEmoji(transaction.category);
         const categoryName = lang.translate(transaction.category.toLowerCase());
 
@@ -303,6 +504,30 @@ class TransactionsManager {
         `;
     }
 
+    renderTransfer(transaction) {
+        return `
+            <div class="transaction-item transfer" data-id="${transaction.id}">
+                <div class="transaction-info">
+                    <div class="transaction-icon">
+                        <span class="category-icon"><i class="fas fa-exchange-alt"></i></span>
+                    </div>
+                    <div class="transaction-details">
+                        <span class="category-name">Transfer <span style="font-size: 13px; font-weight: 400; color: var(--text-tertiary);">${transaction.transferFrom} → ${transaction.transferTo}</span></span>
+                        ${transaction.note ? `<span class="transaction-note" style="font-size: var(--font-size-sm); color: var(--text-tertiary);">${transaction.note}</span>` : ''}
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="transaction-amount transfer">
+                        ${Utils.formatCurrency(transaction.amount, this.currency)}
+                    </span>
+                    <button class="btn-action btn-edit" data-id="${transaction.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
     async openModal(transaction = null) {
         const modal = document.getElementById('transaction-modal');
         const form = document.getElementById('transaction-form');
@@ -323,13 +548,23 @@ class TransactionsManager {
                 btn.classList.toggle('active', btn.dataset.type === transaction.type);
             });
 
-            // Update category options based on type (MUST await this!)
-            await this.updateCategoryOptions(transaction.type);
+            // Toggle transfer fields based on type
+            this.toggleTransferFields(transaction.type);
 
-            // Populate form AFTER category options are updated
+            if (transaction.type === 'transfer') {
+                // Populate transfer fields
+                await this.updateTransferPaymentMethods();
+                document.getElementById('transfer-from').value = transaction.transferFrom || '';
+                document.getElementById('transfer-to').value = transaction.transferTo || '';
+            } else {
+                // Update category options based on type (MUST await this!)
+                await this.updateCategoryOptions(transaction.type);
+                // Populate form AFTER category options are updated
+                document.getElementById('category').value = transaction.category;
+                document.getElementById('payment-method').value = transaction.paymentMethod || 'cash';
+            }
+
             document.getElementById('amount').value = transaction.amount;
-            document.getElementById('category').value = transaction.category;
-            document.getElementById('payment-method').value = transaction.paymentMethod || 'cash';
             document.getElementById('date').value = Utils.formatDate(transaction.date, 'input');
             document.getElementById('note').value = transaction.note || '';
             document.getElementById('transaction-id').value = transaction.id;
@@ -345,7 +580,6 @@ class TransactionsManager {
             form.reset();
 
             // Set today's date
-            // Set today's date
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -356,6 +590,8 @@ class TransactionsManager {
                 btn.classList.toggle('active', btn.dataset.type === 'expense');
             });
 
+            // Show normal fields by default
+            this.toggleTransferFields('expense');
             await this.updateCategoryOptions('expense');
         }
 
@@ -415,33 +651,86 @@ class TransactionsManager {
         e.preventDefault();
 
         const activeTypeBtn = document.querySelector('.type-btn.active');
-        const categoryVal = document.getElementById('category').value;
-        const paymentMethodVal = document.getElementById('payment-method').value;
+        const type = activeTypeBtn.dataset.type;
 
-        if (categoryVal === '__add_new__') {
-            Utils.showToast('Please select a valid category');
-            return;
+        let transactionData;
+
+        if (type === 'transfer') {
+            // Handle transfer
+            const transferFrom = document.getElementById('transfer-from').value;
+            const transferTo = document.getElementById('transfer-to').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            // Validate amount first
+            if (!amount || isNaN(amount) || amount <= 0) {
+                Utils.showToast('Please enter a valid amount');
+                return;
+            }
+
+            if (transferFrom === transferTo) {
+                Utils.showToast('Cannot transfer to the same account');
+                return;
+            }
+
+            // Check if source account has sufficient balance (exclude current transaction if editing)
+            const fromBalance = await this.calculatePaymentMethodBalance(transferFrom, this.editingId);
+
+            console.log('Transfer validation:', {
+                from: transferFrom,
+                to: transferTo,
+                amount: amount,
+                fromBalance: fromBalance,
+                editingId: this.editingId
+            });
+
+            if (fromBalance <= 0) {
+                Utils.showToast(`Cannot transfer from ${transferFrom}: No funds available (Balance: ${Utils.formatCurrency(fromBalance, this.currency)})`);
+                return;
+            }
+
+            if (amount > fromBalance) {
+                Utils.showToast(`Insufficient funds in ${transferFrom}. Available: ${Utils.formatCurrency(fromBalance, this.currency)}`);
+                return;
+            }
+
+            transactionData = {
+                type: 'transfer',
+                amount: amount,
+                transferFrom: transferFrom,
+                transferTo: transferTo,
+                date: document.getElementById('date').value,
+                note: document.getElementById('note').value,
+                createdAt: new Date().toISOString()
+            };
+        } else {
+            // Handle normal income/expense
+            const categoryVal = document.getElementById('category').value;
+            const paymentMethodVal = document.getElementById('payment-method').value;
+
+            if (categoryVal === '__add_new__') {
+                Utils.showToast('Please select a valid category');
+                return;
+            }
+
+            if (paymentMethodVal === '__add_new_payment__') {
+                Utils.showToast('Please select a valid payment method');
+                return;
+            }
+
+            transactionData = {
+                type: type,
+                amount: parseFloat(document.getElementById('amount').value),
+                category: categoryVal,
+                paymentMethod: paymentMethodVal,
+                date: document.getElementById('date').value,
+                note: document.getElementById('note').value,
+                createdAt: new Date().toISOString()
+            };
         }
-
-        if (paymentMethodVal === '__add_new_payment__') {
-            Utils.showToast('Please select a valid payment method');
-            return;
-        }
-
-        const transactionData = {
-            type: activeTypeBtn.dataset.type,
-            amount: parseFloat(document.getElementById('amount').value),
-            category: categoryVal,
-            paymentMethod: paymentMethodVal,
-            date: document.getElementById('date').value,
-            note: document.getElementById('note').value,
-            createdAt: new Date().toISOString()
-        };
 
         // Validate
-        const errors = Utils.validateTransaction(transactionData);
-        if (errors.length > 0) {
-            Utils.showToast(errors[0]);
+        if (!transactionData.amount || transactionData.amount <= 0) {
+            Utils.showToast('Please enter a valid amount');
             return;
         }
 
@@ -480,7 +769,7 @@ class TransactionsManager {
     async editTransaction(id) {
         const transaction = await db.get('transactions', id);
         if (transaction) {
-            this.openModal(transaction);
+            await this.openModal(transaction);
         }
     }
 
