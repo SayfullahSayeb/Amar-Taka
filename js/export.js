@@ -139,7 +139,8 @@ class ExportManager {
                         transactions: currentProfileData.transactions,
                         categories: currentProfileData.categories,
                         settings: currentProfileData.settings,
-                        goals: currentProfileData.goals
+                        goals: currentProfileData.goals,
+                        paymentMethods: currentProfileData.paymentMethods
                     }
                 }
             };
@@ -153,7 +154,8 @@ class ExportManager {
                     transactions: secondaryProfileData.transactions,
                     categories: secondaryProfileData.categories,
                     settings: secondaryProfileData.settings,
-                    goals: secondaryProfileData.goals
+                    goals: secondaryProfileData.goals,
+                    paymentMethods: secondaryProfileData.paymentMethods
                 };
             }
 

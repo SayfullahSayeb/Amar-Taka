@@ -243,12 +243,14 @@ class Database {
         const categories = await this.getAll('categories');
         const settings = await this.getAll('settings');
         const goals = await this.getAll('goals');
+        const paymentMethods = await this.getAll('paymentMethods');
 
         return {
             transactions,
             categories,
             settings,
             goals,
+            paymentMethods,
             exportDate: new Date().toISOString(),
             version: DB_VERSION
         };
@@ -261,7 +263,10 @@ class Database {
             await this.clearStore('transactions');
             await this.clearStore('categories');
             await this.clearStore('settings');
+            await this.clearStore('categories');
+            await this.clearStore('settings');
             await this.clearStore('goals');
+            await this.clearStore('paymentMethods');
 
             // Import transactions
             if (data.transactions) {
@@ -291,6 +296,14 @@ class Database {
                 for (const goal of data.goals) {
                     const { id, ...goalData } = goal;
                     await this.add('goals', goalData);
+                }
+            }
+
+            // Import payment methods - Accounts
+            if (data.paymentMethods) {
+                for (const method of data.paymentMethods) {
+                    const { id, ...methodData } = method;
+                    await this.add('paymentMethods', methodData);
                 }
             }
 
