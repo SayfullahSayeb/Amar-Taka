@@ -1991,14 +1991,14 @@ body.modal-open {
 }
 
 .type-btn.active[data-type="expense"] {
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
 }
 
 .type-btn.active[data-type="income"] {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
 }
 
@@ -2166,7 +2166,7 @@ body.modal-open {
     transform: translateX(-50%) translateY(100px);
     background-color: var(--text-primary);
     color: var(--bg-primary);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 12px;
     border-radius: var(--radius-lg);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
@@ -2174,16 +2174,14 @@ body.modal-open {
     z-index: var(--z-toast);
     opacity: 0;
     pointer-events: none;
-    /* Don't block clicks when hidden */
     transition: all var(--transition-normal);
-    max-width: 90%;
+    width: 80%;
     text-align: center;
 }
 
 .toast.show {
     opacity: 1;
     pointer-events: auto;
-    /* Allow clicks when visible */
     transform: translateX(-50%) translateY(0);
 }
 
