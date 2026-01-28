@@ -440,6 +440,21 @@ class CategoryFormHandler {
             return;
         }
 
+        // Check for duplicate name
+        const allCategories = await categoriesManager.getCategories();
+        const categoryId = idInput ? idInput.value : null;
+
+        const duplicate = allCategories.find(c =>
+            c.name.toLowerCase() === categoryData.name.toLowerCase() &&
+            (c.type === categoryData.type || c.type === 'both' || categoryData.type === 'both') &&
+            (!categoryId || c.id !== parseInt(categoryId))
+        );
+
+        if (duplicate) {
+            Utils.showToast('Category with this name already exists');
+            return;
+        }
+
         try {
             const categoryId = idInput ? idInput.value : null;
 

@@ -487,6 +487,8 @@ class SettingsManager {
                 await db.clearStore('transactions');
                 await db.clearStore('categories');
                 await db.clearStore('settings');
+                await db.clearStore('goals');
+                await db.clearStore('paymentMethods');
 
                 // Clear localStorage
                 localStorage.removeItem('onboardingCompleted');
@@ -593,7 +595,7 @@ class SettingsManager {
             const rect = wrapper.getBoundingClientRect();
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
-            const dropdownHeight = 200; 
+            const dropdownHeight = 200;
             if ((spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) ||
                 selectElement.id === 'payment-method-icon') {
                 wrapper.classList.add('dropup');

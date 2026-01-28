@@ -4,33 +4,44 @@ class PaymentMethodsManager {
             { name: 'Cash', icon: 'fa-money-bill-wave' },
             { name: 'Card', icon: 'fa-credit-card' },
             { name: 'Mobile Banking', icon: 'fa-mobile-alt' },
-            { name: 'Bank', icon: 'fa-university' }
+            { name: 'Bank', icon: 'fa-university' },
+            { name: 'bKash', icon: 'fa-money-bill-wave' },
+            { name: 'Nagad', icon: 'fa-money-bill-wave' }
         ];
     }
 
     async init() {
-        // Check if payment methods exist, if not, add defaults
         const paymentMethods = await db.getAll('paymentMethods');
 
+        const newDefaults = [
+            { name: 'bKash', icon: 'fa-money-bill-wave' },
+            { name: 'Nagad', icon: 'fa-money-bill-wave' }
+        ];
+
         if (paymentMethods.length === 0) {
-            // No payment methods exist, add defaults
             for (const method of this.defaultPaymentMethods) {
                 await db.add('paymentMethods', method);
             }
         } else {
-            // Payment methods exist, but they might be missing icons
-            // Let's fix them by updating with correct icons
+            for (const newDefault of newDefaults) {
+                const exists = paymentMethods.some(m => m.name === newDefault.name);
+                if (!exists) {
+                    await db.add('paymentMethods', newDefault);
+                    console.log(`Added new default payment method: ${newDefault.name}`);
+                }
+            }
+
             const iconMap = {
                 'Cash': 'fa-money-bill-wave',
                 'Card': 'fa-credit-card',
                 'Mobile Banking': 'fa-mobile-alt',
-                'Bank': 'fa-university'
+                'Bank': 'fa-university',
+                'bKash': 'fa-money-bill-wave',
+                'Nagad': 'fa-money-bill-wave'
             };
 
             for (const method of paymentMethods) {
-                // If the method doesn't have an icon, or has an empty/invalid icon
                 if (!method.icon || method.icon === '' || method.icon === 'undefined') {
-                    // Try to match by name and assign the correct icon
                     if (iconMap[method.name]) {
                         method.icon = iconMap[method.name];
                         await db.update('paymentMethods', method);
@@ -340,6 +351,20 @@ class PaymentMethodFormHandler {
         // Validate
         if (!methodData.name) {
             Utils.showToast('Please enter an account name');
+            return;
+        }
+
+        // Check for duplicate name
+        const allMethods = await paymentMethodsManager.getPaymentMethods();
+        const methodId = idInput ? idInput.value : null;
+
+        const duplicate = allMethods.find(m =>
+            m.name.toLowerCase() === methodData.name.toLowerCase() &&
+            (!methodId || m.id !== parseInt(methodId))
+        );
+
+        if (duplicate) {
+            Utils.showToast('Account with this name already exists');
             return;
         }
 
