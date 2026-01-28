@@ -260,6 +260,37 @@ class DemoModeManager {
                 date: fiveDaysAgo.toISOString().split('T')[0],
                 note: 'Medical checkup',
                 createdAt: fiveDaysAgo.toISOString()
+            },
+            // Transfer transactions
+            {
+                id: 14,
+                type: 'transfer',
+                amount: 5000,
+                transferFrom: 'Bank',
+                transferTo: 'Cash',
+                date: today.toISOString().split('T')[0],
+                note: 'ATM Withdrawal',
+                createdAt: new Date(today.getTime() - 1000000).toISOString()
+            },
+            {
+                id: 15,
+                type: 'transfer',
+                amount: 2000,
+                transferFrom: 'Mobile Banking',
+                transferTo: 'Card',
+                date: yesterday.toISOString().split('T')[0],
+                note: 'Card bill payment',
+                createdAt: yesterday.toISOString()
+            },
+            {
+                id: 16,
+                type: 'transfer',
+                amount: 1000,
+                transferFrom: 'Cash',
+                transferTo: 'Mobile Banking',
+                date: threeDaysAgo.toISOString().split('T')[0],
+                note: 'Cash in',
+                createdAt: threeDaysAgo.toISOString()
             }
         ];
     }
