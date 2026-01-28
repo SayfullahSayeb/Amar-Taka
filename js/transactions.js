@@ -535,33 +535,26 @@ class TransactionsManager {
         const deleteBtn = document.getElementById('delete-transaction-btn');
 
         if (transaction) {
-            // Edit mode
             this.editingId = transaction.id;
             modalTitle.setAttribute('data-lang', 'editTransaction');
             modalTitle.textContent = lang.translate('editTransaction');
 
-            // Show delete button in edit mode
             deleteBtn.style.display = 'flex';
 
-            // Set type first
             document.querySelectorAll('.type-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.type === transaction.type);
             });
 
-            // Toggle transfer fields based on type
             this.toggleTransferFields(transaction.type);
 
             if (transaction.type === 'transfer') {
-                // Populate transfer fields
                 await this.updateTransferPaymentMethods();
                 document.getElementById('transfer-from').value = transaction.transferFrom || '';
                 document.getElementById('transfer-to').value = transaction.transferTo || '';
             } else {
-                // Update category options based on type (MUST await this!)
                 await this.updateCategoryOptions(transaction.type);
-                // Populate form AFTER category options are updated
+                await this.updatePaymentMethodOptions(transaction.paymentMethod || 'cash');
                 document.getElementById('category').value = transaction.category;
-                document.getElementById('payment-method').value = transaction.paymentMethod || 'cash';
             }
 
             document.getElementById('amount').value = transaction.amount;
@@ -569,17 +562,14 @@ class TransactionsManager {
             document.getElementById('note').value = transaction.note || '';
             document.getElementById('transaction-id').value = transaction.id;
         } else {
-            // Add mode
+
             this.editingId = null;
             modalTitle.setAttribute('data-lang', 'addTransaction');
             modalTitle.textContent = lang.translate('addTransaction');
 
-            // Hide delete button in add mode
             deleteBtn.style.display = 'none';
 
             form.reset();
-
-            // Set today's date
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -590,9 +580,9 @@ class TransactionsManager {
                 btn.classList.toggle('active', btn.dataset.type === 'expense');
             });
 
-            // Show normal fields by default
             this.toggleTransferFields('expense');
             await this.updateCategoryOptions('expense');
+            await this.updatePaymentMethodOptions();
         }
 
         modal.classList.add('active');
@@ -643,6 +633,26 @@ class TransactionsManager {
         // Auto-select the new payment method if provided
         if (selectedMethod) {
             paymentMethodSelect.value = selectedMethod;
+
+            const wrapper = paymentMethodSelect.nextElementSibling;
+            if (wrapper && wrapper.classList.contains('custom-select-wrapper')) {
+                const selectedText = wrapper.querySelector('.custom-select-text');
+                const selectedOption = paymentMethodSelect.options[paymentMethodSelect.selectedIndex];
+
+                if (selectedText && selectedOption) {
+                    selectedText.textContent = selectedOption.textContent;
+                }
+
+                // Update selected class in dropdown
+                const options = wrapper.querySelectorAll('.custom-select-option');
+                options.forEach(opt => {
+                    if (opt.dataset.value === selectedMethod) {
+                        opt.classList.add('selected');
+                    } else {
+                        opt.classList.remove('selected');
+                    }
+                });
+            }
         }
     }
 
