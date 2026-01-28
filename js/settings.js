@@ -590,14 +590,12 @@ class SettingsManager {
                 }
             });
 
-            // Check if dropdown should open upward
             const rect = wrapper.getBoundingClientRect();
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
-            const dropdownHeight = 100; // max-height of dropdown
-
-            // If not enough space below but enough space above, open upward
-            if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+            const dropdownHeight = 200; 
+            if ((spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) ||
+                selectElement.id === 'payment-method-icon') {
                 wrapper.classList.add('dropup');
             } else {
                 wrapper.classList.remove('dropup');
