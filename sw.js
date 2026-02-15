@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
     // CSS files
     './css/styles.css',
     './css/onboarding.css',
+    './css/fontawesome/css/all.min.css',
 
     // JavaScript files
     './js/version.js',
@@ -34,6 +35,20 @@ const STATIC_ASSETS = [
     './js/utils.js',
     './js/notifications.js',
     './js/navigation.js',
+    './js/accounts.js',
+    './js/payment-methods.js',
+    './js/pwa-banner.js',
+    './js/chart.min.js',
+
+    // Font Awesome Webfonts
+    './css/fontawesome/webfonts/fa-brands-400.woff2',
+    './css/fontawesome/webfonts/fa-brands-400.ttf',
+    './css/fontawesome/webfonts/fa-regular-400.woff2',
+    './css/fontawesome/webfonts/fa-regular-400.ttf',
+    './css/fontawesome/webfonts/fa-solid-900.woff2',
+    './css/fontawesome/webfonts/fa-solid-900.ttf',
+    './css/fontawesome/webfonts/fa-v4compatibility.woff2',
+    './css/fontawesome/webfonts/fa-v4compatibility.ttf',
 
     // Images
     './image/icon.png',
